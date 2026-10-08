@@ -27,9 +27,9 @@ function StackedBar({ segments }: { segments: Segment[] }) {
     );
 }
 
-function Legend({ segments }: { segments: Segment[] }) {
+function Legend({ segments, vertical = false }: { segments: Segment[]; vertical?: boolean }) {
     return (
-        <View className="flex-row flex-wrap gap-x-3 gap-y-1">
+        <View className={vertical ? 'gap-1' : 'flex-row flex-wrap gap-x-3 gap-y-1'}>
             {segments.map((segment) => (
                 <View key={segment.key} className="flex-row items-center gap-1.5">
                     <View className={`h-2.5 w-2.5 rounded-full ${segment.color}`} />
@@ -42,13 +42,9 @@ function Legend({ segments }: { segments: Segment[] }) {
     );
 }
 
-/** Dos barras apiladas: operaciones por tipo (importacion/exportacion) y por transporte. */
+/** Barra apilada: operaciones por transporte, con leyenda. */
 export function TypeSplitBar({ importCount, exportCount, transportCounts }: TypeSplitBarProps) {
     const total = importCount + exportCount;
-    const byType: Segment[] = [
-        { key: 'import', label: 'Import.', count: importCount, color: 'bg-primario' },
-        { key: 'export', label: 'Export.', count: exportCount, color: 'bg-acento' },
-    ];
     const byTransport: Segment[] = TRANSPORT_MODES.map((mode) => ({
         key: mode,
         label: TRANSPORT_LABELS[mode],
@@ -57,17 +53,9 @@ export function TypeSplitBar({ importCount, exportCount, transportCounts }: Type
     }));
 
     return (
-        <ChartCard title="Operaciones" value={String(total)} detail="registradas" className="flex-1">
-            <View className="gap-1.5">
-                <Text className="text-[11px] font-medium text-texto2">Por tipo</Text>
-                <StackedBar segments={byType} />
-                <Legend segments={byType} />
-            </View>
-            <View className="gap-1.5">
-                <Text className="text-[11px] font-medium text-texto2">Por transporte</Text>
-                <StackedBar segments={byTransport} />
-                <Legend segments={byTransport} />
-            </View>
+        <ChartCard title="Operaciones" value={String(total)} detail="por transporte" className="flex-1">
+            <StackedBar segments={byTransport} />
+            <Legend segments={byTransport} vertical />
         </ChartCard>
     );
 }

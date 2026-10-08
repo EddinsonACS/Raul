@@ -21,6 +21,33 @@ type OperationsState = {
 
 const formatReceipt = (n: number) => `ADU-${String(n).padStart(6, '0')}`;
 
+type PersistedOperations = {
+    operations?: (Omit<Operation, 'transport'> & { transport?: Operation['transport'] })[];
+    receiptCounter?: number;
+    seeded?: boolean;
+};
+
+const isSeed = (id: string) => id.startsWith('seed-');
+
+/**
+ * v1 no guardaba transporte; v2 lo puso en 'sea' a todo. Las operaciones de ejemplo se regeneran
+ * (traen transporte variado y la formula vigente); las del usuario se conservan y, si les falta
+ * transporte, quedan como maritimas.
+ */
+export function migrateOperationsState(persisted: PersistedOperations, version: number): Pick<OperationsState, 'operations' | 'receiptCounter' | 'seeded'> {
+    const stored = persisted.operations ?? [];
+    const hadSeed = stored.some((operation) => isSeed(operation.id));
+    const mine: Operation[] = stored
+        .filter((operation) => !isSeed(operation.id))
+        .map((operation) => ({ ...operation, transport: operation.transport ?? 'sea' }));
+    const seed = hadSeed && version < 3 ? buildSeedOperations(new Date()).operations : stored.filter((o) => isSeed(o.id)).map((o) => ({ ...o, transport: o.transport ?? 'sea' }));
+    return {
+        operations: [...mine, ...seed].sort((a, b) => b.createdAt.localeCompare(a.createdAt)),
+        receiptCounter: persisted.receiptCounter ?? 0,
+        seeded: persisted.seeded ?? hadSeed,
+    };
+}
+
 export const useOperationsStore = create<OperationsState>()(
     persist(
         (set, get) => {
@@ -89,15 +116,8 @@ export const useOperationsStore = create<OperationsState>()(
         {
             name: 'aduanas-operations',
             storage: appStorage,
-            version: 2,
-            // v1 no guardaba el transporte: las operaciones viejas quedan como maritimas.
-            migrate: (persisted) => {
-                const state = persisted as { operations?: (Operation & { transport?: Operation['transport'] })[] };
-                return {
-                    ...state,
-                    operations: (state.operations ?? []).map((operation) => ({ ...operation, transport: operation.transport ?? 'sea' })),
-                };
-            },
+            version: 3,
+            migrate: (persisted, version) => migrateOperationsState(persisted as PersistedOperations, version),
         }
     )
 );
