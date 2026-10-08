@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { buildSeedOperations } from '@/services/operations/seed';
 import { appStorage } from '@/services/storage/appStorage';
 import { calculateTaxes } from '@/services/taxes/calculateTaxes';
 import type { Operation, OperationInput, OperationStatus } from '@/types/operation';
@@ -9,6 +10,9 @@ import { createId } from '@/utils/id';
 type OperationsState = {
     operations: Operation[];
     receiptCounter: number;
+    /** true una vez cargados los datos de ejemplo; no se vuelven a cargar aunque el usuario borre todo. */
+    seeded: boolean;
+    seedIfEmpty: (now?: Date) => void;
     addOperation: (input: OperationInput, tariffRate: number, settings: TaxSettings) => Operation;
     payOperation: (id: string) => boolean;
     releaseOperation: (id: string) => boolean;
@@ -26,6 +30,12 @@ export const useOperationsStore = create<OperationsState>()(
             return {
                 operations: [],
                 receiptCounter: 0,
+                seeded: false,
+                seedIfEmpty: (now = new Date()) => {
+                    const { seeded, operations } = get();
+                    if (seeded || operations.length > 0) return;
+                    set({ ...buildSeedOperations(now), seeded: true });
+                },
                 addOperation: (input, tariffRate, settings) => {
                     const operation: Operation = {
                         ...input,
