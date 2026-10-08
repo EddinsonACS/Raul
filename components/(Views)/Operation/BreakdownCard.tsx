@@ -1,6 +1,6 @@
 import { Text, View } from 'react-native';
-import { Card } from '@/components/Shared/Card';
-import { MoneyRow } from '@/components/Shared/MoneyRow';
+import { Card } from '@/components/Shared/Ui/Card';
+import { MoneyRow } from '@/components/Shared/Ui/MoneyRow';
 import type { OperationType, TaxBreakdown } from '@/types/operation';
 import { formatBs } from '@/utils/format';
 

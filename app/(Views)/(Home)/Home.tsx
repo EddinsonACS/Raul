@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
 import { OperationRow } from '@/components/(Views)/History/OperationRow';
-import { KpiCard } from '@/components/(Views)/Home/KpiCard';
+import { KpiCard } from '@/components/Shared/Ui/KpiCard';
 import { Button } from '@/components/Shared/Button';
 import { Screen } from '@/components/Shared/Screen';
 import { summarizeOperations } from '@/services/operations/summary';
@@ -35,20 +35,25 @@ export default function Home() {
                     label="Recaudado"
                     value={formatUsd(summary.collected.usd)}
                     detail={formatBs(summary.collected.bs)}
+                    icon="wallet"
+                    tone="success"
                 />
                 <KpiCard
                     label="Por cobrar"
                     value={formatUsd(summary.receivable.usd)}
                     detail={formatBs(summary.receivable.bs)}
+                    icon="banknote"
+                    tone="warning"
                 />
             </View>
 
             <View className="flex-row gap-3">
-                <KpiCard label="Pendientes" value={String(summary.pendingCount)} detail="operaciones sin pagar" />
+                <KpiCard label="Pendientes" value={String(summary.pendingCount)} detail="operaciones sin pagar" icon="receipt" />
                 <KpiCard
                     label="Operaciones"
                     value={String(summary.totalCount)}
                     detail={`${summary.importCount} import. · ${summary.exportCount} export.`}
+                    icon="trending-up"
                 />
             </View>
 

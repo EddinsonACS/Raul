@@ -1,5 +1,5 @@
 import { Pressable, Text, View } from 'react-native';
-import { StatusBadge } from '@/components/Shared/StatusBadge';
+import { StatusBadge } from '@/components/Shared/Ui/StatusBadge';
 import { TYPE_LABELS } from '@/constants/labels';
 import type { Operation } from '@/types/operation';
 import { formatBs, formatDate, formatUsd } from '@/utils/format';

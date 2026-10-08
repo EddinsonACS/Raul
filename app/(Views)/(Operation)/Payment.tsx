@@ -3,7 +3,7 @@ import { Text } from 'react-native';
 import { BreakdownCard } from '@/components/(Views)/Operation/BreakdownCard';
 import { OperationMissing } from '@/components/(Views)/Operation/OperationMissing';
 import { Button } from '@/components/Shared/Button';
-import { Card } from '@/components/Shared/Card';
+import { Card } from '@/components/Shared/Ui/Card';
 import { Screen } from '@/components/Shared/Screen';
 import { TYPE_LABELS } from '@/constants/labels';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
