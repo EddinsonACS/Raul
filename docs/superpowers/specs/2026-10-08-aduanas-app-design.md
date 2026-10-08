@@ -31,30 +31,71 @@ nativas, para que corra en Expo Go.
 
 - Expo (SDK más reciente, el que soporta Expo Go), React Native, TypeScript
 - Expo Router (rutas por archivos)
-- NativeWind (Tailwind) para estilos
+- NativeWind (Tailwind) con tema claro/oscuro por variables CSS (`vars()`)
+- Reanimated y Gesture Handler para modales, hojas inferiores y animaciones
 - Zustand con persistencia en AsyncStorage
-- Jest para la lógica de cálculo
+- lucide-react-native (íconos), expo-image (logo), expo-linear-gradient,
+  react-native-toast-message
+- Jest para la lógica de cálculo y utilidades
+
+## Identidad visual
+
+- Logotipo propio: una **A** de remates redondos que es el haz de un radar, con
+  el punto de origen en el vértice y anillos de barrido. Fuentes SVG en
+  `assets/brand/`; PNG exportados en `assets/`.
+- Paleta: azul marino `#071633` / `#0E2A52` de marca, acento `#38BDF8`,
+  primario `#2563EB`. Tema claro y oscuro; sigue el sistema y se puede fijar
+  en Ajustes.
+- Tipografía del sistema, jerarquía por tamaño y peso. Tarjetas con radio 20,
+  borde sutil, sin sombras pesadas.
 
 ## Pantallas
 
-Cinco pestañas inferiores:
+Cuatro pestañas inferiores, en este orden:
 
 | Pestaña | Contenido |
 |---|---|
-| Inicio | Tablero: tasa del día, recaudado, por cobrar, pendientes, total de operaciones y las tres últimas. |
-| Cotizar | Calculadora con desglose en vivo. La cotización solo se guarda al registrarla como operación. |
-| Historial | Lista de operaciones con estado; al tocar una se abre su detalle. |
-| Categorías | Aranceles por categoría: agregar, editar y eliminar (con confirmación). |
-| Ajustes | Tipo de cambio, impuestos de importación (IVA y mínimo exento) y trámite de exportación. |
+| Inicio | Tablero: tasa del día en tarjeta con degradado, indicadores 2×2 (recaudado, por cobrar, pendientes, operaciones), accesos rápidos y las tres últimas operaciones. |
+| Cotizar | Calculadora con desglose en vivo y tooltip en cada término. "Registrar" abre una hoja inferior que pide la descripción. |
+| Categorías | Buscador y lista limpia (nombre y porcentaje). Tocar una fila abre una hoja inferior para editar o eliminar (con confirmación). Botón **+** en el encabezado para crear. |
+| Historial | Buscador, filtros por estado (Todas, Pendientes, Pagadas, Liberadas) y lista. Estado vacío ilustrado. |
 
-Pantallas fuera de las pestañas: Pago, Comprobante y Detalle de operación.
+**Ajustes** no es pestaña: se abre desde el engranaje a la derecha del
+encabezado. Contiene tipo de cambio, impuestos de importación (IVA y mínimo
+exento), exportación (tasa de trámite), apariencia (sistema / claro / oscuro) y
+"Acerca de" con la fórmula explicada.
+
+Pantallas fuera de las pestañas: Ajustes, Pago, Comprobante y Detalle de operación.
+
+### Encabezado
+
+Barra superior propia en cada pantalla: altura generosa (16 px de margen
+vertical además del área segura), logo redondeado + título a la izquierda o
+flecha de volver, y acciones a la derecha (engranaje, **+**). El borde inferior
+aparece solo al hacer scroll.
+
+### Componentes reutilizables
+
+| Componente | Uso |
+|---|---|
+| `BottomSheetModal` | Hoja inferior con asa, fondo oscurecido, animación con Reanimated y arrastre hacia abajo para cerrar. |
+| `CenteredModal` | Diálogo centrado con transición entre contenidos (`contentKey`), para confirmaciones y el flujo de pago. |
+| `InfoTooltip` | Burbuja explicativa junto a un término; el texto sale del glosario. |
+| `SearchBar`, `FormInput` (vibra en error), `ActionButton` (con spinner), `Chip`, `EmptyState`, `KpiCard`, `MoneyRow`, `StatusBadge` | Piezas de interfaz comunes. |
+| `toast` | Avisos breves: operación registrada, pago realizado, categoría guardada o eliminada. |
+
+### Glosario (tooltips)
+
+Valor en aduana, arancel, IVA, mínimo exento, flete, seguro, tasa de trámite,
+tasa del día. Un solo archivo `constants/glossary.ts` con título y explicación
+de cada término en lenguaje llano.
 
 ### Flujo de una operación
 
-1. El usuario cotiza: tipo, categoría, valor, flete y seguro (montos en USD).
+1. El usuario cotiza: tipo, categoría (selector con buscador), valor, flete y seguro (montos en USD).
 2. El desglose se actualiza mientras escribe, en USD y en Bs. Nada se guarda todavía.
-3. Al escribir la descripción y registrar, la operación queda **pendiente**.
-4. En Pago confirma el cobro simulado; la operación pasa a **pagada** y recibe número de comprobante.
+3. "Registrar operación" abre una hoja inferior con la descripción; al confirmar, la operación queda **pendiente** y se abre Pago.
+4. En Pago, "Pagar" abre un diálogo: confirmar → procesando (simulado, ~1 s) → listo. La operación pasa a **pagada**, recibe número de comprobante y se muestra el comprobante.
 5. Desde el detalle, "Liberar mercancía" la pasa a **liberada**.
 
 Una operación pendiente se puede eliminar. Una pagada o liberada no se puede
@@ -133,40 +174,41 @@ Juguetes 15 %, Cosméticos 15 %, Otros 10 %.
 
 ```
 app/
-  _layout.tsx
+  _layout.tsx                    proveedores (gestos, área segura, tema), Stack, Navbar, Toast, hosts de modales
+  index.tsx
   (Views)/
     _layout.tsx
     (Home)/Home.tsx
-    (Operation)/NewOperation.tsx
-    (Operation)/Payment.tsx
-    (Operation)/Receipt.tsx
+    (Quote)/Quote.tsx
+    (Categories)/Categories.tsx
     (History)/History.tsx
     (History)/OperationDetail.tsx
-    (Admin)/Admin.tsx
+    (Operation)/Payment.tsx
+    (Operation)/Receipt.tsx
+    (Settings)/Settings.tsx
 components/
-  Shared/
-  (Views)/
-services/
-  taxes/calculateTaxes.ts
-  storage/
-stores/
-  operations/
-  rates/
-types/
-constants/
-utils/
+  Layout/TopHeader.tsx  Navbar.tsx  Screen.tsx
+  Shared/Modals/BottomSheetModal.tsx  CenteredModal.tsx  ConfirmDialogHost.tsx
+  Shared/Forms/FormInput.tsx  SearchBar.tsx  Chip.tsx  OptionSheet.tsx
+  Shared/Buttons/ActionButton.tsx  IconButton.tsx  InfoTooltip.tsx
+  Shared/Feedback/EmptyState.tsx  AppToast.tsx
+  Shared/Ui/Card.tsx  MoneyRow.tsx  StatusBadge.tsx  KpiCard.tsx  Icon.tsx
+  (Views)/Home/…  Quote/…  Categories/…  History/…
+Context/ThemeContext.tsx          vars() por tema, useTheme()
+Shared/Global/colors.ts           paleta clara y oscura
+services/taxes  services/operations  services/storage  services/toast
+stores/operations  stores/rates  stores/shared (tema, profundidad de modales, diálogo de confirmación)
+hooks/shared                      useShakeOnError, useScrolled, useNavGuard
+constants/defaults.ts  labels.ts  glossary.ts
+types/  utils/
 ```
 
-Responsabilidades:
+Reglas:
 
-- `services/taxes/calculateTaxes.ts`: función pura. Recibe los datos de la
-  operación, la categoría y la configuración; devuelve el desglose. No conoce
-  pantallas ni almacenamiento.
-- `stores/operations`: lista de operaciones y sus cambios de estado.
-- `stores/rates`: categorías y configuración.
-- `services/storage`: adaptador de AsyncStorage para la persistencia de Zustand.
-- `utils`: formato de USD, Bs y fechas.
-- Las pantallas leen de los stores, llaman a `calculateTaxes` y muestran el resultado.
+- La fórmula (`services/taxes`) y los stores no conocen pantallas.
+- Ningún color en las pantallas: solo clases del tema (`bg-fondo`, `text-texto1`…) o `useTheme().colors` para props que no aceptan clases.
+- Un modal es un componente controlado (`visible`, `onClose`); los diálogos de confirmación y los toasts se abren por función (`confirm(...)`, `toast.success(...)`) a través de un store y un host en la raíz.
+- Cada componente compartido tiene una sola responsabilidad y props tipadas; nada de archivos barrel.
 
 ## Validaciones
 
@@ -182,7 +224,9 @@ Los errores se muestran junto al campo y bloquean el botón de guardar.
 
 ## Pruebas
 
-Pruebas automáticas con Jest sobre `calculateTaxes`:
+Pruebas automáticas con Jest sobre `calculateTaxes`, formato, validaciones,
+stores, resumen, navegación y los filtros de búsqueda del historial y las
+categorías:
 
 - Importación sobre el mínimo exento.
 - Importación bajo el mínimo exento.
