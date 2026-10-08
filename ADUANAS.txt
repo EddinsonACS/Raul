@@ -1,0 +1,125 @@
+ADUANAS
+=======
+
+Aplicación móvil (Android / iOS) de gestión tributaria para importaciones y
+exportaciones menores: compras por internet y envíos courier. Calcula al
+instante los impuestos de cada operación según la normativa venezolana,
+simula el cobro, emite el comprobante y lleva el historial. Todo funciona
+en el teléfono, sin servidor; los datos se guardan localmente.
+
+Tecnología: React Native + Expo, TypeScript, Expo Router, NativeWind,
+Zustand (persistencia en el dispositivo), Reanimated. 81 pruebas
+automáticas sobre la fórmula, los formatos, las validaciones y los datos.
+
+
+PANTALLAS
+---------
+
+1. INICIO (tablero)
+
+   - Tasa del día: bolívares por 1 USD. Se usa para mostrar cada monto en
+     las dos monedas. Tocarla abre Ajustes.
+   - Pendientes (anillo): cuántas operaciones faltan por pagar y qué
+     porcentaje del total representan.
+   - Operaciones (barra por transporte): cuántas operaciones hay y cómo se
+     reparten entre marítimo, aéreo y terrestre.
+   - Recaudado (barras por día): total cobrado en USD y Bs, y cuánto se
+     cobró cada uno de los últimos 7 días.
+   - Por cobrar (barras horizontales): total pendiente de pago y las
+     operaciones pendientes de mayor monto.
+   - Últimas operaciones: las tres más recientes, con acceso a su detalle.
+   - Engranaje (arriba a la derecha): abre Ajustes.
+
+2. COTIZAR
+
+   Calculadora. Se elige:
+   - Tipo: importación o exportación.
+   - Transporte: marítimo, aéreo o terrestre.
+   - Categoría de la mercancía (solo aparecen las que tienen arancel para
+     el transporte elegido).
+   - Valor del producto, flete y seguro, en USD.
+
+   El desglose se calcula mientras se escribe: valor en aduana, arancel,
+   tasa aduanera, IVA y total, en USD y en Bs. Cada término tiene un botón
+   de ayuda (?) que explica qué es. Nada se guarda hasta tocar
+   "Registrar operación": ahí se pide la descripción de la mercancía, se
+   crea la operación en estado Pendiente y se pasa al pago.
+
+3. CATEGORÍAS
+
+   Lista de categorías con su arancel por transporte (marítimo, aéreo,
+   terrestre). Si una categoría no tiene arancel para un transporte, no se
+   puede cotizar con él. Buscador por nombre. El botón + crea una
+   categoría; tocar una fila la abre para editarla o eliminarla (con
+   confirmación; no se puede eliminar si ya tiene operaciones).
+
+4. HISTORIAL
+
+   Todas las operaciones, con buscador (por descripción o número de
+   comprobante) y tres filtros desplegables: Estado, Tipo y Transporte.
+   Cada fila muestra el ícono del transporte, la descripción, el total en
+   USD y Bs, el estado y la fecha. Tocar una abre el Detalle.
+
+   Estados de una operación:
+   - Pendiente: registrada, sin pagar. Se puede pagar o eliminar.
+   - Pagada: tiene número de comprobante (ADU-000001, consecutivo).
+   - Liberada: la mercancía fue entregada. Es el estado final.
+
+5. PAGO Y COMPROBANTE
+
+   El pago es simulado (no mueve dinero real): confirmar -> procesando ->
+   pago realizado. Al terminar se muestra el comprobante con número,
+   fecha, datos de la operación y el desglose.
+
+6. AJUSTES (desde el engranaje de Inicio)
+
+   - Tipo de cambio: tasa del día en Bs por USD.
+   - Impuestos de importación: IVA (%), tasa por servicios de aduana (%)
+     y mínimo exento (USD).
+   - Exportación: tasa fija de trámite (USD).
+   - Cómo se calcula: los pasos de la fórmula, con cada fórmula escrita.
+   - Base legal: las normas venezolanas usadas, con fecha, gaceta y enlace
+     al documento.
+   El botón "Guardar" solo se activa cuando hay cambios. Las operaciones
+   ya registradas conservan la tasa y los montos con los que se
+   calcularon.
+
+
+CÓMO SE CALCULA
+---------------
+
+Importación:
+  1. Valor en aduana (CIF) = producto + flete + seguro.
+  2. Si el producto no supera el mínimo exento (100 USD), no paga nada.
+  3. Arancel = valor en aduana x arancel de la categoría para el transporte.
+  4. Tasa aduanera = valor en aduana x 1 %.
+  5. IVA = (valor en aduana + arancel + tasa aduanera) x 16 %.
+  6. Total = arancel + tasa aduanera + IVA.
+
+Exportación: no paga arancel ni IVA (alícuota 0 %); solo la tasa fija de
+trámite.
+
+Bolívares: cada monto en USD x tasa del día.
+
+Ejemplo: electrónica (5 %) por vía aérea, producto 300 + flete 30 +
+seguro 10 = 340 USD en aduana. Arancel 17,00 + tasa 3,40 + IVA 57,66 =
+total 78,06 USD (70.254,00 Bs a 900 Bs/USD).
+
+
+BASE LEGAL
+----------
+
+- Ley Orgánica de Aduanas (G.O. Ext. 6.507, 29/01/2020): valor en aduana
+  y tasa por servicios de aduana del 1 %.
+- Arancel de Aduanas, Decreto 4.944 (G.O. Ext. 6.804, 25/04/2024) y su
+  reforma, Decreto 5.103 (G.O. 6.890, 06/03/2025): arancel de 0 % a 35 %
+  según el producto.
+- Ley del IVA (G.O. Ext. 6.507, 29/01/2020): 16 %; exportaciones al 0 %.
+- Resolución 3.283 (G.O. 36.127, 16/01/1997): envíos courier de hasta
+  100 USD libres de tributos.
+- Decreto 5.197 (G.O. Ext. 6.952, 31/12/2025): exoneraciones 2026 para
+  códigos específicos (no se aplican en la app).
+
+Las categorías de la app simplifican el código arancelario, y el arancel
+por transporte es una opción de la app: en la ley el arancel depende del
+producto, no del transporte.
