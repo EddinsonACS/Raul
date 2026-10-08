@@ -41,7 +41,7 @@ function Step({ number, text }: { number: number; text: string }) {
             <View className="h-6 w-6 items-center justify-center rounded-full bg-primario/15">
                 <Text className="text-xs font-bold text-primario">{number}</Text>
             </View>
-            <Text className="flex-1 text-sm leading-5 text-texto1">{text}</Text>
+            <Text className="flex-1 text-justify text-sm leading-5 text-texto1">{text}</Text>
         </View>
     );
 }
@@ -169,7 +169,7 @@ export default function Settings() {
 
             <Card variant="flat">
                 <SectionTitle>Base legal (Venezuela)</SectionTitle>
-                <Text className="text-sm leading-5 text-texto2">
+                <Text className="text-justify text-sm leading-5 text-texto2">
                     Ley Orgánica de Aduanas (G.O. 6.507, 2020) y Arancel de Aduanas (Decreto 4.944 y reformas): arancel ad valorem de 0 % a 35 % según código arancelario y tasa por servicios de aduana del 1 %. Ley del IVA: 16 % sobre el valor en aduana más los tributos de la importación; exportaciones con alícuota 0 %. Resolución 3.283 (G.O. 36.127, 1997): envíos courier de hasta 100 USD libres de tributos y hasta 2.000 USD por envío. Las exoneraciones del Decreto 5.197 (2026) para códigos específicos no se aplican en esta app.
                 </Text>
             </Card>
