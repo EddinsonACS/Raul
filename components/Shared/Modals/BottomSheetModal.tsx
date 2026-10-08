@@ -55,16 +55,16 @@ export function BottomSheetModal({ visible, onClose, title, children, onClosed }
         return decrement;
     }, [mounted, increment, decrement]);
 
-    // El modal nativo no se redimensiona con el teclado: la hoja se eleva a mano en ambas plataformas.
+    // En iOS el modal no se redimensiona con el teclado y la hoja se eleva a mano.
+    // En Android la ventana se encoge sola (softwareKeyboardLayoutMode: resize); elevarla ademas la duplicaria.
     useEffect(() => {
-        const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
-        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
-        const show = Keyboard.addListener(showEvent, (event) => {
+        if (Platform.OS !== 'ios') return;
+        const show = Keyboard.addListener('keyboardWillShow', (event) => {
             const height = Math.max(0, event.endCoordinates.height - insets.bottom);
             setKeyboardHeight(height);
             keyboardLift.value = withTiming(height, { duration: event.duration || 220 });
         });
-        const hide = Keyboard.addListener(hideEvent, (event) => {
+        const hide = Keyboard.addListener('keyboardWillHide', (event) => {
             setKeyboardHeight(0);
             keyboardLift.value = withTiming(0, { duration: event.duration || 220 });
         });

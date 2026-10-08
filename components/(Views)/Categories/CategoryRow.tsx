@@ -26,20 +26,25 @@ export function CategoryRow({ category, onPress }: CategoryRowProps) {
             <View className="h-10 w-10 items-center justify-center rounded-2xl bg-primario/15">
                 <Icon name="tags" size={18} color={COLORS.primario} />
             </View>
-            <Text className="flex-1 text-base font-medium text-texto1" numberOfLines={2}>
-                {category.name}
-            </Text>
-            <View className="flex-row gap-1">
-                {TRANSPORT_MODES.map((mode) => {
-                    const rate = tariffRateFor(category, mode);
-                    const available = rate !== undefined;
-                    return (
-                        <View key={mode} className={`flex-row items-center gap-1 rounded-full px-2 py-1 ${available ? 'bg-fondo3' : 'bg-transparent'}`}>
-                            <Icon name={TRANSPORT_ICONS[mode]} size={12} color={available ? COLORS.texto2 : COLORS.borde} />
-                            <Text className={`text-xs font-bold ${available ? 'text-texto1' : 'text-borde'}`}>{available ? `${rate}%` : '—'}</Text>
-                        </View>
-                    );
-                })}
+            <View className="flex-1 gap-1.5">
+                <Text className="text-base font-medium text-texto1" numberOfLines={1}>
+                    {category.name}
+                </Text>
+                <View className="flex-row gap-1.5">
+                    {TRANSPORT_MODES.map((mode) => {
+                        const rate = tariffRateFor(category, mode);
+                        const available = rate !== undefined;
+                        return (
+                            <View
+                                key={mode}
+                                className={`flex-row items-center gap-1 rounded-full px-2 py-0.5 ${available ? 'bg-fondo3' : 'border border-borde bg-transparent'}`}
+                            >
+                                <Icon name={TRANSPORT_ICONS[mode]} size={11} color={available ? COLORS.texto2 : COLORS.borde} />
+                                <Text className={`text-[11px] font-semibold ${available ? 'text-texto1' : 'text-borde'}`}>{available ? `${rate}%` : '—'}</Text>
+                            </View>
+                        );
+                    })}
+                </View>
             </View>
             <Icon name="chevron-right" size={18} color={COLORS.texto2} />
         </Pressable>

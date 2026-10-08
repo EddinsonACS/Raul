@@ -17,7 +17,8 @@
         "backgroundColor": "#071633"
       },
       "predictiveBackGestureEnabled": false,
-      "package": "com.eddinsonc.aduanas"
+      "package": "com.eddinsonc.aduanas",
+      "softwareKeyboardLayoutMode": "resize"
     },
     "web": {
       "favicon": "./assets/favicon.png"

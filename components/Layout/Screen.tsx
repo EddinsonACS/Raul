@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { usePathname } from 'expo-router';
-import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TopHeader } from '@/components/Layout/TopHeader';
 import { isNavbarHidden } from '@/constants/layout';
@@ -23,7 +23,8 @@ export function Screen({ title, children, showLogo, onBack, actions, footer }: S
     const footerBottom = isNavbarHidden(pathname) ? Math.max(insets.bottom, 12) : 12;
 
     return (
-        <KeyboardAvoidingView className="flex-1 bg-fondo" behavior="padding">
+        // En Android la ventana se redimensiona sola con el teclado; 'padding' la desplazaria el doble.
+        <KeyboardAvoidingView className="flex-1 bg-fondo" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
             <TopHeader title={title} showLogo={showLogo} onBack={onBack} actions={actions} scrolled={scrolled} />
             <ScrollView
                 onScroll={onScroll}
