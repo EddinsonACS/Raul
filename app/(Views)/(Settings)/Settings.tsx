@@ -1,11 +1,13 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
-import { Text, View } from 'react-native';
+import { Linking, Pressable, Text, View } from 'react-native';
+import { COLORS } from '@/Shared/Global/colors';
 import { Screen } from '@/components/Layout/Screen';
 import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
 import { InfoTooltip } from '@/components/Shared/Buttons/InfoTooltip';
 import { FormInput } from '@/components/Shared/Forms/FormInput';
 import { Card } from '@/components/Shared/Ui/Card';
+import { Icon } from '@/components/Shared/Ui/Icon';
 import { toast } from '@/services/toast/toast';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import type { TaxSettings } from '@/types/rates';
@@ -46,11 +48,19 @@ function Step({ number, text }: { number: number; text: string }) {
     );
 }
 
-function LegalItem({ title, date, text }: { title: string; date: string; text: string }) {
+function LegalItem({ title, date, url, text }: { title: string; date: string; url: string; text: string }) {
     return (
         <View className="gap-0.5 border-l-2 border-primario/40 pl-3">
             <Text className="text-sm font-semibold text-texto1">{title}</Text>
-            <Text className="text-[11px] font-medium text-primario">{date}</Text>
+            <Pressable
+                onPress={() => Linking.openURL(url)}
+                accessibilityRole="link"
+                accessibilityLabel={`Abrir ${title}`}
+                className="flex-row items-center gap-1 self-start active:opacity-70"
+            >
+                <Text className="text-[11px] font-medium text-primario underline">{date}</Text>
+                <Icon name="external-link" size={11} color={COLORS.primario} />
+            </Pressable>
             <Text className="text-justify text-xs leading-4 text-texto2">{text}</Text>
         </View>
     );
@@ -182,26 +192,31 @@ export default function Settings() {
                 <LegalItem
                     title="Ley Orgánica de Aduanas"
                     date="G.O. Extraordinaria 6.507 · 29 de enero de 2020"
+                    url="https://www.venamcham.org/wp-content/uploads/2021/11/G.O.-Ext-6507-Ene-2020-Reforma-de-la-Ley-Orga%CC%81nica-de-Aduanas-MAYO-2020-comprimido.pdf"
                     text="Define el valor en aduana (CIF) como base de los tributos y la tasa por servicios de aduana del 1 %."
                 />
                 <LegalItem
                     title="Arancel de Aduanas (Decreto 4.944)"
                     date="G.O. Extraordinaria 6.804 · 25 de abril de 2024 · reformado por el Decreto 5.103 (G.O. 6.890, 6 de marzo de 2025)"
+                    url="https://www.traviesoevans.com/travieso/wp-content/uploads/gacetas/2024/04-abril/2024-04-25-6804-extraordinario.pdf"
                     text="Arancel ad valorem de 0 % a 35 % según el código arancelario de cada producto. Las categorías de la app lo simplifican."
                 />
                 <LegalItem
                     title="Ley del Impuesto al Valor Agregado"
                     date="G.O. Extraordinaria 6.507 · 29 de enero de 2020"
+                    url="https://www.pwc.com/ve/es/publicaciones/assets/PublicacionesNew/Boletines/AC_Decreto%20Constituyente%20de%20Reforma%20Parcial%20_IVA_29Ene2020.pdf"
                     text="Alícuota general de 16 % sobre el valor en aduana más los tributos de la importación. Las exportaciones tienen alícuota 0 %."
                 />
                 <LegalItem
                     title="Resolución 3.283 (envíos courier)"
                     date="G.O. 36.127 · 16 de enero de 1997"
+                    url="https://www.legiscomex.com/BancoMedios/Documentos%20PDF/empresa%20operadora%20de%20mensajer%C3%ADa%20internacional%20courier.pdf"
                     text="Envíos courier de hasta 100 USD libres de gravámenes y tributos; hasta 2.000 USD por envío se nacionalizan por el courier."
                 />
                 <LegalItem
                     title="Decreto 5.197 (exoneraciones 2026)"
                     date="G.O. Extraordinaria 6.952 · 31 de diciembre de 2025"
+                    url="https://www.tradex.com.ve/wp-content/uploads/Tradex-Reforma-Arancel-de-Aduanas-Decreto-de-Exoneracion-GO.-6.952.pdf"
                     text="Exoneraciones del 90 % de arancel e IVA para códigos arancelarios específicos durante 2026. No se aplican en esta app."
                 />
             </Card>
