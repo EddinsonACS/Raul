@@ -45,6 +45,11 @@ export function CategorySheet({ visible, onClose, category, onSave, onDelete, on
         setDeleteError('');
     }, [visible, category]);
 
+    // Al editar, el boton queda opaco hasta que cambie el nombre o algun arancel; al crear, hasta que haya nombre y un arancel.
+    const dirty = category
+        ? name.trim() !== category.name || TRANSPORT_MODES.some((mode) => rates[mode].trim() !== fieldsFrom(category)[mode])
+        : name.trim() !== '' && TRANSPORT_MODES.some((mode) => rates[mode].trim() !== '');
+
     const buildInput = (): CategoryInput => ({
         name,
         rates: Object.fromEntries(TRANSPORT_MODES.filter((mode) => rates[mode].trim() !== '').map((mode) => [mode, parseAmount(rates[mode])])),
@@ -105,7 +110,7 @@ export function CategorySheet({ visible, onClose, category, onSave, onDelete, on
                     </View>
                 </View>
 
-                <ActionButton label={category ? 'Guardar cambios' : 'Agregar categoría'} icon="check" onPress={save} />
+                <ActionButton label={category ? 'Guardar cambios' : 'Agregar categoría'} icon="check" onPress={save} disabled={!dirty} />
                 {category ? <ActionButton label="Eliminar categoría" icon="trash" variant="danger" onPress={remove} /> : null}
                 {deleteError ? <Text className="text-center text-xs text-rojo">{deleteError}</Text> : null}
             </View>
