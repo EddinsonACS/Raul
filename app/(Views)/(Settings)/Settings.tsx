@@ -210,7 +210,7 @@ export default function Settings() {
                 <LegalItem
                     title="Resolución 3.283 (envíos courier)"
                     date="G.O. 36.127 · 16 de enero de 1997"
-                    url="https://www.legiscomex.com/BancoMedios/Documentos%20PDF/empresa%20operadora%20de%20mensajer%C3%ADa%20internacional%20courier.pdf"
+                    url="https://pandectasdigital.blogspot.com/2019/07/resolucion-que-regula-los-servicios-de.html"
                     text="Envíos courier de hasta 100 USD libres de gravámenes y tributos; hasta 2.000 USD por envío se nacionalizan por el courier."
                 />
                 <LegalItem
