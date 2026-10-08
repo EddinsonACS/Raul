@@ -1,10 +1,10 @@
 import { Pressable, Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
 import { Icon } from '@/components/Shared/Ui/Icon';
 import { StatusBadge } from '@/components/Shared/Ui/StatusBadge';
 import { TYPE_LABELS } from '@/constants/labels';
 import type { Operation } from '@/types/operation';
 import { formatBs, formatDate, formatUsd } from '@/utils/format';
+import { COLORS } from '@/Shared/Global/colors';
 
 type OperationRowProps = {
     operation: Operation;
@@ -13,7 +13,6 @@ type OperationRowProps = {
 };
 
 export function OperationRow({ operation, categoryName, onPress }: OperationRowProps) {
-    const { colors } = useTheme();
 
     return (
         <Pressable
@@ -23,7 +22,7 @@ export function OperationRow({ operation, categoryName, onPress }: OperationRowP
         >
             <View className="flex-row items-center gap-3">
                 <View className="h-10 w-10 items-center justify-center rounded-2xl bg-fondo3">
-                    <Icon name={operation.type === 'import' ? 'package-check' : 'ship'} size={18} color={colors.texto1} />
+                    <Icon name={operation.type === 'import' ? 'package-check' : 'ship'} size={18} color={COLORS.texto1} />
                 </View>
                 <View className="flex-1">
                     <Text className="text-base font-semibold text-texto1" numberOfLines={1}>

@@ -8,15 +8,13 @@ import Toast from 'react-native-toast-message';
 import { Navbar } from '@/components/Layout/Navbar';
 import { toastConfig } from '@/components/Shared/Feedback/AppToast';
 import { ConfirmDialogHost } from '@/components/Shared/Modals/ConfirmDialogHost';
-import { ThemeProvider, useTheme } from '@/Context/ThemeContext';
 
 function AppShell() {
-    const { isDark } = useTheme();
     const insets = useSafeAreaInsets();
 
     return (
         <View className="flex-1 bg-fondo">
-            <StatusBar style={isDark ? 'light' : 'dark'} />
+            <StatusBar style="dark" />
             <View className="flex-1">
                 <Stack screenOptions={{ headerShown: false }} />
             </View>
@@ -31,9 +29,7 @@ export default function RootLayout() {
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <SafeAreaProvider>
-                <ThemeProvider>
-                    <AppShell />
-                </ThemeProvider>
+                <AppShell />
             </SafeAreaProvider>
         </GestureHandlerRootView>
     );

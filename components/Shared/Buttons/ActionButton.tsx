@@ -1,6 +1,5 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
-import { BRAND } from '@/Shared/Global/colors';
+import { BRAND, COLORS } from '@/Shared/Global/colors';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
 
 type Variant = 'primary' | 'secondary' | 'ghost' | 'danger';
@@ -19,7 +18,7 @@ const CONTAINER: Record<Variant, string> = {
     primary: 'bg-primario',
     secondary: 'border border-borde bg-fondo2',
     ghost: 'bg-transparent',
-    danger: 'bg-rojo/12',
+    danger: 'bg-rojo/15',
 };
 
 const LABEL: Record<Variant, string> = {
@@ -38,8 +37,7 @@ export function ActionButton({
     disabled = false,
     fullWidth = true,
 }: ActionButtonProps) {
-    const { colors } = useTheme();
-    const contentColor = { primary: BRAND.blanco, secondary: colors.texto1, ghost: colors.primario, danger: BRAND.rojo }[variant];
+    const contentColor = { primary: BRAND.blanco, secondary: COLORS.texto1, ghost: COLORS.primario, danger: BRAND.rojo }[variant];
     const inactive = disabled || loading;
 
     return (

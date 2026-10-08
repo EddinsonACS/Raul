@@ -31,7 +31,7 @@ nativas, para que corra en Expo Go.
 
 - Expo (SDK más reciente, el que soporta Expo Go), React Native, TypeScript
 - Expo Router (rutas por archivos)
-- NativeWind (Tailwind) con tema claro/oscuro por variables CSS (`vars()`)
+- NativeWind (Tailwind) con paleta fija (solo tema claro)
 - Reanimated y Gesture Handler para modales, hojas inferiores y animaciones
 - Zustand con persistencia en AsyncStorage
 - lucide-react-native (íconos), expo-image (logo), expo-linear-gradient,
@@ -41,11 +41,10 @@ nativas, para que corra en Expo Go.
 ## Identidad visual
 
 - Logotipo propio: una **A** de remates redondos que es el haz de un radar, con
-  el punto de origen en el vértice y anillos de barrido. Fuentes SVG en
-  `assets/brand/`; PNG exportados en `assets/`.
+  el punto de origen en el vértice y anillos de barrido, sin travesaño. PNG
+  exportados en `assets/` (ícono, frente y monocromo de Android, splash, favicon).
 - Paleta: azul marino `#071633` / `#0E2A52` de marca, acento `#38BDF8`,
-  primario `#2563EB`. Tema claro y oscuro; sigue el sistema y se puede fijar
-  en Ajustes.
+  primario `#2563EB`. Solo tema claro.
 - Tipografía del sistema, jerarquía por tamaño y peso. Tarjetas con radio 20,
   borde sutil, sin sombras pesadas.
 
@@ -62,8 +61,8 @@ Cuatro pestañas inferiores, en este orden:
 
 **Ajustes** no es pestaña: se abre desde el engranaje a la derecha del
 encabezado. Contiene tipo de cambio, impuestos de importación (IVA y mínimo
-exento), exportación (tasa de trámite), apariencia (sistema / claro / oscuro) y
-"Acerca de" con la fórmula explicada.
+exento), exportación (tasa de trámite) y "Cómo se calcula" con la fórmula
+explicada.
 
 Pantallas fuera de las pestañas: Ajustes, Pago, Comprobante y Detalle de operación.
 
@@ -174,7 +173,7 @@ Juguetes 15 %, Cosméticos 15 %, Otros 10 %.
 
 ```
 app/
-  _layout.tsx                    proveedores (gestos, área segura, tema), Stack, Navbar, Toast, hosts de modales
+  _layout.tsx                    proveedores (gestos, área segura), Stack, Navbar, Toast, host de confirmación
   index.tsx
   (Views)/
     _layout.tsx
@@ -194,10 +193,9 @@ components/
   Shared/Feedback/EmptyState.tsx  AppToast.tsx
   Shared/Ui/Card.tsx  MoneyRow.tsx  StatusBadge.tsx  KpiCard.tsx  Icon.tsx
   (Views)/Home/…  Quote/…  Categories/…  History/…
-Context/ThemeContext.tsx          vars() por tema, useTheme()
-Shared/Global/colors.ts           paleta clara y oscura
+Shared/Global/colors.ts           paleta (misma que tailwind.config.js)
 services/taxes  services/operations  services/storage  services/toast
-stores/operations  stores/rates  stores/shared (tema, profundidad de modales, diálogo de confirmación)
+stores/operations  stores/rates  stores/shared (profundidad de modales, diálogo de confirmación)
 hooks/shared                      useShakeOnError, useScrolled, useNavGuard
 constants/defaults.ts  labels.ts  glossary.ts
 types/  utils/
@@ -206,7 +204,7 @@ types/  utils/
 Reglas:
 
 - La fórmula (`services/taxes`) y los stores no conocen pantallas.
-- Ningún color en las pantallas: solo clases del tema (`bg-fondo`, `text-texto1`…) o `useTheme().colors` para props que no aceptan clases.
+- Ningún color literal en las pantallas: solo clases de la paleta (`bg-fondo`, `text-texto1`…) o `COLORS`/`BRAND` para props que no aceptan clases.
 - Un modal es un componente controlado (`visible`, `onClose`); los diálogos de confirmación y los toasts se abren por función (`confirm(...)`, `toast.success(...)`) a través de un store y un host en la raíz.
 - Cada componente compartido tiene una sola responsabilidad y props tipadas; nada de archivos barrel.
 

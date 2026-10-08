@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { KeyboardAvoidingView, Platform, ScrollView, View } from 'react-native';
+import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
 import { TopHeader } from '@/components/Layout/TopHeader';
 import { useScrolled } from '@/hooks/shared/useScrolled';
 
@@ -17,7 +17,7 @@ export function Screen({ title, children, showLogo, onBack, actions, footer }: S
     const { scrolled, onScroll } = useScrolled();
 
     return (
-        <KeyboardAvoidingView className="flex-1 bg-fondo" behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
+        <KeyboardAvoidingView className="flex-1 bg-fondo" behavior="padding">
             <TopHeader title={title} showLogo={showLogo} onBack={onBack} actions={actions} scrolled={scrolled} />
             <ScrollView
                 onScroll={onScroll}

@@ -1,6 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
 import { BreakdownCard } from '@/components/(Views)/Quote/BreakdownCard';
 import { Screen } from '@/components/Layout/Screen';
 import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
@@ -13,7 +12,7 @@ import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import { formatDate } from '@/utils/format';
 import { goToTab } from '@/utils/navigation';
-import { BRAND } from '@/Shared/Global/colors';
+import { BRAND, COLORS } from '@/Shared/Global/colors';
 
 function Line({ label, value }: { label: string; value: string }) {
     return (
@@ -26,7 +25,6 @@ function Line({ label, value }: { label: string; value: string }) {
 
 export default function Receipt() {
     const router = useRouter();
-    const { colors } = useTheme();
     const { id } = useLocalSearchParams<{ id: string }>();
     const operation = useOperationsStore((state) => state.operations.find((item) => item.id === id));
     const categories = useRatesStore((state) => state.categories);
@@ -39,7 +37,7 @@ export default function Receipt() {
         <Screen title="Comprobante" onBack={() => goToTab(router, '/History')}>
             <Card>
                 <View className="items-center gap-2 pb-2">
-                    <View className="h-14 w-14 items-center justify-center rounded-full bg-verde/12">
+                    <View className="h-14 w-14 items-center justify-center rounded-full bg-verde/15">
                         <Icon name="circle-check" size={28} color={BRAND.verde} />
                     </View>
                     <Text className="text-xs font-semibold uppercase tracking-wider text-texto2">Comprobante de pago</Text>
@@ -58,7 +56,7 @@ export default function Receipt() {
 
             <ActionButton label="Ir al historial" icon="history" onPress={() => goToTab(router, '/History')} />
             <ActionButton label="Nueva cotización" icon="calculator" variant="secondary" onPress={() => goToTab(router, '/Quote')} />
-            <Text className="text-center text-xs" style={{ color: colors.texto2 }}>
+            <Text className="text-center text-xs" style={{ color: COLORS.texto2 }}>
                 Documento simulado con fines educativos.
             </Text>
         </Screen>

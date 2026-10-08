@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react';
 import { Dimensions, FlatList, Pressable, Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
 import { SearchBar } from '@/components/Shared/Forms/SearchBar';
 import { BottomSheetModal } from '@/components/Shared/Modals/BottomSheetModal';
 import { Icon } from '@/components/Shared/Ui/Icon';
 import { matchesQuery } from '@/utils/text';
+import { COLORS } from '@/Shared/Global/colors';
 
 export type SheetOption = {
     key: string;
@@ -26,7 +26,6 @@ type OptionSheetProps = {
 const LIST_MAX_HEIGHT = Dimensions.get('window').height * 0.55;
 
 export function OptionSheet({ visible, onClose, title, options, selectedKey, onSelect, searchable = false, emptyText = 'Sin resultados' }: OptionSheetProps) {
-    const { colors } = useTheme();
     const [query, setQuery] = useState('');
     const filtered = useMemo(() => options.filter((option) => matchesQuery(option.label, query)), [options, query]);
 
@@ -62,7 +61,7 @@ export function OptionSheet({ visible, onClose, title, options, selectedKey, onS
                                 <Text className={`text-base text-texto1 ${selected ? 'font-semibold' : ''}`}>{item.label}</Text>
                                 {item.sublabel ? <Text className="text-xs text-texto2">{item.sublabel}</Text> : null}
                             </View>
-                            {selected ? <Icon name="check" size={20} color={colors.primario} /> : null}
+                            {selected ? <Icon name="check" size={20} color={COLORS.primario} /> : null}
                         </Pressable>
                     );
                 }}

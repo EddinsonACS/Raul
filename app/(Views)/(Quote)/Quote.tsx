@@ -1,7 +1,6 @@
 import { useRouter } from 'expo-router';
 import { useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
 import { BreakdownCard } from '@/components/(Views)/Quote/BreakdownCard';
 import { RegisterSheet } from '@/components/(Views)/Quote/RegisterSheet';
 import { TypeSwitch } from '@/components/(Views)/Quote/TypeSwitch';
@@ -19,10 +18,10 @@ import { useRatesStore } from '@/stores/rates/ratesStore';
 import type { OperationType } from '@/types/operation';
 import { parseAmount, parseOptionalAmount } from '@/utils/format';
 import { validateOperation } from '@/utils/validation';
+import { COLORS } from '@/Shared/Global/colors';
 
 export default function Quote() {
     const router = useRouter();
-    const { colors } = useTheme();
     const categories = useRatesStore((state) => state.categories);
     const settings = useRatesStore((state) => state.settings);
     const addOperation = useOperationsStore((state) => state.addOperation);
@@ -94,7 +93,7 @@ export default function Quote() {
                         <Text className={`text-base ${category ? 'text-texto1' : 'text-texto2'}`}>
                             {category ? `${category.name} · ${category.tariffRate} %` : 'Elegir categoría'}
                         </Text>
-                        <Icon name="chevron-right" size={18} color={colors.texto2} />
+                        <Icon name="chevron-right" size={18} color={COLORS.texto2} />
                     </Pressable>
                     {shown.categoryId ? <Text className="text-xs text-rojo">{shown.categoryId}</Text> : null}
                 </View>

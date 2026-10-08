@@ -1,25 +1,17 @@
 import { useRouter } from 'expo-router';
 import { useState } from 'react';
 import { Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
 import { Screen } from '@/components/Layout/Screen';
 import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
 import { InfoTooltip } from '@/components/Shared/Buttons/InfoTooltip';
-import { Chip } from '@/components/Shared/Forms/Chip';
 import { FormInput } from '@/components/Shared/Forms/FormInput';
 import { Card } from '@/components/Shared/Ui/Card';
 import { toast } from '@/services/toast/toast';
 import { useRatesStore } from '@/stores/rates/ratesStore';
-import type { ThemePreference } from '@/stores/shared/themeStore';
 import { parseAmount } from '@/utils/format';
 import { goToTab } from '@/utils/navigation';
 import { type SettingsErrors, validateSettings } from '@/utils/validation';
-
-const THEME_OPTIONS: { key: ThemePreference; label: string; icon: 'smartphone' | 'sun' | 'moon' }[] = [
-    { key: 'system', label: 'Sistema', icon: 'smartphone' },
-    { key: 'light', label: 'Claro', icon: 'sun' },
-    { key: 'dark', label: 'Oscuro', icon: 'moon' },
-];
+import { COLORS } from '@/Shared/Global/colors';
 
 function SectionTitle({ children }: { children: string }) {
     return <Text className="text-xs font-semibold uppercase tracking-wider text-texto2">{children}</Text>;
@@ -27,7 +19,6 @@ function SectionTitle({ children }: { children: string }) {
 
 export default function Settings() {
     const router = useRouter();
-    const { preference, setPreference } = useTheme();
     const settings = useRatesStore((state) => state.settings);
     const updateSettings = useRatesStore((state) => state.updateSettings);
 
@@ -90,14 +81,6 @@ export default function Settings() {
                 <FormInput label="Tasa de trámite" labelAccessory={<InfoTooltip term="exportFee" />} suffix="USD" numeric value={exportFee} onChangeText={setExportFee} errorMessage={errors.exportFee} />
             </Card>
 
-            <Card>
-                <SectionTitle>Apariencia</SectionTitle>
-                <View className="flex-row gap-2">
-                    {THEME_OPTIONS.map((option) => (
-                        <Chip key={option.key} label={option.label} icon={option.icon} selected={preference === option.key} onPress={() => setPreference(option.key)} />
-                    ))}
-                </View>
-            </Card>
 
             <Card variant="flat">
                 <SectionTitle>Cómo se calcula</SectionTitle>

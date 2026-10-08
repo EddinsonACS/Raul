@@ -3,9 +3,9 @@ import { useEffect } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { useTheme } from '@/Context/ThemeContext';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
 import { goToTab } from '@/utils/navigation';
+import { COLORS } from '@/Shared/Global/colors';
 
 type Tab = {
     href: string;
@@ -23,7 +23,6 @@ const TABS: Tab[] = [
 ];
 
 function TabItem({ tab, active, onPress }: { tab: Tab; active: boolean; onPress: () => void }) {
-    const { colors } = useTheme();
     const progress = useSharedValue(active ? 1 : 0);
 
     useEffect(() => {
@@ -35,7 +34,7 @@ function TabItem({ tab, active, onPress }: { tab: Tab; active: boolean; onPress:
         transform: [{ scaleX: 0.6 + progress.value * 0.4 }],
     }));
 
-    const color = active ? colors.primario : colors.texto2;
+    const color = active ? COLORS.primario : COLORS.texto2;
 
     return (
         <Pressable

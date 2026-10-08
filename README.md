@@ -51,8 +51,7 @@ app/(Views)/            pantallas (Expo Router)
 components/Layout/      TopHeader, Screen, Navbar
 components/Shared/      Buttons, Forms, Modals, Feedback, Ui — reutilizables
 components/(Views)/     piezas propias de cada pantalla
-Context/ThemeContext    tema claro/oscuro con variables (vars())
-Shared/Global/colors    paleta
+Shared/Global/colors    paleta (misma que tailwind.config.js)
 services/               fórmula (taxes), resumen y filtros (operations), toast
 stores/                 operaciones, tasas y estado de UI (Zustand + AsyncStorage)
 constants/              valores iniciales, etiquetas, glosario de tooltips
@@ -60,5 +59,5 @@ utils/                  formato, validación, texto, navegación
 ```
 
 Reglas: la fórmula y los stores no conocen pantallas; ningún color literal en
-pantallas (solo clases del tema o `useTheme().colors`); los modales son
+pantallas (solo clases de la paleta o `COLORS`/`BRAND`); los modales son
 componentes controlados y las confirmaciones y toasts se abren por función.

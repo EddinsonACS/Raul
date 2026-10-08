@@ -1,8 +1,7 @@
 import { forwardRef, type ReactNode } from 'react';
 import { Text, TextInput, type TextInputProps, View } from 'react-native';
 import Animated from 'react-native-reanimated';
-import { useTheme } from '@/Context/ThemeContext';
-import { BRAND } from '@/Shared/Global/colors';
+import { BRAND, COLORS } from '@/Shared/Global/colors';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
 import { useShakeOnError } from '@/hooks/shared/useShakeOnError';
 
@@ -22,7 +21,6 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(function FormInpu
     { label, labelAccessory, errorMessage, hint, icon, suffix, numeric = false, className = '', ...inputProps },
     ref
 ) {
-    const { colors } = useTheme();
     const shakeStyle = useShakeOnError(errorMessage);
     const border = errorMessage ? 'border-rojo' : 'border-borde focus:border-primario';
 
@@ -38,10 +36,10 @@ export const FormInput = forwardRef<TextInput, FormInputProps>(function FormInpu
                 style={shakeStyle}
                 className={`h-12 flex-row items-center gap-2 rounded-2xl border bg-fondo2 px-4 ${border}`}
             >
-                {icon ? <Icon name={icon} size={18} color={colors.texto2} /> : null}
+                {icon ? <Icon name={icon} size={18} color={COLORS.texto2} /> : null}
                 <TextInput
                     ref={ref}
-                    placeholderTextColor={colors.texto2}
+                    placeholderTextColor={COLORS.texto2}
                     keyboardType={numeric ? 'decimal-pad' : 'default'}
                     accessibilityLabel={label}
                     className={`flex-1 text-base text-texto1 ${className}`}

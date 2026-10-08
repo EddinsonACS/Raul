@@ -1,6 +1,5 @@
 import { Pressable } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
-import { BRAND } from '@/Shared/Global/colors';
+import { BRAND, COLORS } from '@/Shared/Global/colors';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
 
 type IconButtonProps = {
@@ -13,9 +12,8 @@ type IconButtonProps = {
 };
 
 export function IconButton({ icon, onPress, label, size = 20, tone = 'neutral' }: IconButtonProps) {
-    const { colors } = useTheme();
-    const color = { neutral: colors.texto1, primary: BRAND.blanco, danger: BRAND.rojo }[tone];
-    const surface = { neutral: 'bg-fondo3', primary: 'bg-primario', danger: 'bg-rojo/12' }[tone];
+    const color = { neutral: COLORS.texto1, primary: BRAND.blanco, danger: BRAND.rojo }[tone];
+    const surface = { neutral: 'bg-fondo3', primary: 'bg-primario', danger: 'bg-rojo/15' }[tone];
 
     return (
         <Pressable

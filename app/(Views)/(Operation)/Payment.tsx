@@ -1,7 +1,6 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Text, View } from 'react-native';
-import { useTheme } from '@/Context/ThemeContext';
 import { BreakdownCard } from '@/components/(Views)/Quote/BreakdownCard';
 import { Screen } from '@/components/Layout/Screen';
 import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
@@ -13,18 +12,20 @@ import { TYPE_LABELS } from '@/constants/labels';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { formatBs, formatUsd } from '@/utils/format';
 import { goToTab } from '@/utils/navigation';
+import { COLORS } from '@/Shared/Global/colors';
 
-type Step = 'closed' | 'confirm' | 'processing' | 'done';
+type Step = 'confirm' | 'processing' | 'done';
 
 const PROCESSING_MS = 1100;
 
 export default function Payment() {
     const router = useRouter();
-    const { colors } = useTheme();
     const { id } = useLocalSearchParams<{ id: string }>();
     const operation = useOperationsStore((state) => state.operations.find((item) => item.id === id));
     const payOperation = useOperationsStore((state) => state.payOperation);
-    const [step, setStep] = useState<Step>('closed');
+    const [visible, setVisible] = useState(false);
+    const [step, setStep] = useState<Step>('confirm');
+    const processing = useRef(false);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => () => {
@@ -37,17 +38,30 @@ export default function Payment() {
     const goBack = () => (router.canGoBack() ? router.back() : goToTab(router, '/History'));
     const openReceipt = () => router.replace({ pathname: '/Receipt', params: { id: operation.id } });
 
+    const openDialog = () => {
+        setStep('confirm');
+        setVisible(true);
+    };
+
+    const cancel = () => {
+        if (timer.current) clearTimeout(timer.current);
+        processing.current = false;
+        setVisible(false);
+    };
+
     const startPayment = () => {
-        if (step !== 'confirm') return;
+        if (processing.current) return;
+        processing.current = true;
         setStep('processing');
         timer.current = setTimeout(() => {
             payOperation(operation.id);
+            processing.current = false;
             setStep('done');
         }, PROCESSING_MS);
     };
 
     const finish = () => {
-        setStep('closed');
+        setVisible(false);
         openReceipt();
     };
 
@@ -57,7 +71,7 @@ export default function Payment() {
             onBack={goBack}
             footer={
                 operation.status === 'pending' ? (
-                    <ActionButton label={`Pagar ${formatUsd(total.usd)}`} icon="wallet" onPress={() => setStep('confirm')} />
+                    <ActionButton label={`Pagar ${formatUsd(total.usd)}`} icon="wallet" onPress={openDialog} />
                 ) : (
                     <ActionButton label="Ver comprobante" icon="receipt" onPress={openReceipt} />
                 )
@@ -83,12 +97,7 @@ export default function Payment() {
                 </Text>
             </Card>
 
-            <CenteredModal
-                visible={step !== 'closed'}
-                onClose={() => setStep('closed')}
-                contentKey={step}
-                canClose={step === 'confirm'}
-            >
+            <CenteredModal visible={visible} onClose={cancel} contentKey={step} canClose={step === 'confirm'}>
                 {step === 'confirm' ? (
                     <>
                         <CenteredModal.Icon name="wallet" />
@@ -98,13 +107,13 @@ export default function Payment() {
                         </CenteredModal.Subtitle>
                         <CenteredModal.Actions>
                             <ActionButton label="Pagar" icon="check" onPress={startPayment} />
-                            <ActionButton label="Cancelar" variant="secondary" onPress={() => setStep('closed')} />
+                            <ActionButton label="Cancelar" variant="secondary" onPress={cancel} />
                         </CenteredModal.Actions>
                     </>
                 ) : step === 'processing' ? (
                     <>
                         <View className="mb-2 h-16 w-16 items-center justify-center">
-                            <ActivityIndicator size="large" color={colors.primario} />
+                            <ActivityIndicator size="large" color={COLORS.primario} />
                         </View>
                         <CenteredModal.Title>Procesando pago</CenteredModal.Title>
                         <CenteredModal.Subtitle>Un momento…</CenteredModal.Subtitle>

@@ -1,6 +1,6 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { Dimensions, Keyboard, Modal, Platform, Pressable, Text, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '@/components/Shared/Buttons/IconButton';
@@ -23,6 +23,7 @@ type BottomSheetModalProps = {
 export function BottomSheetModal({ visible, onClose, title, children, onClosed }: BottomSheetModalProps) {
     const insets = useSafeAreaInsets();
     const [mounted, setMounted] = useState(visible);
+    const [keyboardHeight, setKeyboardHeight] = useState(0);
     const slideY = useSharedValue(SCREEN_HEIGHT);
     const overlay = useSharedValue(0);
     const keyboardLift = useSharedValue(0);
@@ -54,14 +55,18 @@ export function BottomSheetModal({ visible, onClose, title, children, onClosed }
         return decrement;
     }, [mounted, increment, decrement]);
 
-    // En iOS el modal no se redimensiona con el teclado: se eleva la hoja a mano.
+    // El modal nativo no se redimensiona con el teclado: la hoja se eleva a mano en ambas plataformas.
     useEffect(() => {
-        if (Platform.OS !== 'ios') return;
-        const show = Keyboard.addListener('keyboardWillShow', (event) => {
-            keyboardLift.value = withTiming(event.endCoordinates.height - insets.bottom, { duration: event.duration || 250 });
+        const showEvent = Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow';
+        const hideEvent = Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide';
+        const show = Keyboard.addListener(showEvent, (event) => {
+            const height = Math.max(0, event.endCoordinates.height - insets.bottom);
+            setKeyboardHeight(height);
+            keyboardLift.value = withTiming(height, { duration: event.duration || 220 });
         });
-        const hide = Keyboard.addListener('keyboardWillHide', (event) => {
-            keyboardLift.value = withTiming(0, { duration: event.duration || 250 });
+        const hide = Keyboard.addListener(hideEvent, (event) => {
+            setKeyboardHeight(0);
+            keyboardLift.value = withTiming(0, { duration: event.duration || 220 });
         });
         return () => {
             show.remove();
@@ -91,16 +96,19 @@ export function BottomSheetModal({ visible, onClose, title, children, onClosed }
         else onClose();
     };
 
+    // Con el teclado abierto la hoja se acorta para no esconder la cabecera bajo la barra de estado.
+    const maxHeight = SCREEN_HEIGHT - keyboardHeight - insets.top - 12;
+
     if (!mounted) return null;
 
     return (
         <Modal visible transparent statusBarTranslucent animationType="none" onRequestClose={onClose}>
-            <View className="flex-1 justify-end">
+            <GestureHandlerRootView style={{ flex: 1 }} className="justify-end">
                 <Pressable className="absolute inset-0" onPress={onBackdropPress} accessibilityLabel="Cerrar">
                     <Animated.View className="flex-1 bg-velo/60" style={overlayStyle} />
                 </Pressable>
                 <Animated.View
-                    style={[sheetStyle, { paddingBottom: insets.bottom + 16, maxHeight: SCREEN_HEIGHT * 0.9 }]}
+                    style={[sheetStyle, { paddingBottom: insets.bottom + 16, maxHeight: Math.min(SCREEN_HEIGHT * 0.9, maxHeight) }]}
                     className="rounded-t-4xl bg-fondo2 px-5"
                 >
                     <GestureDetector gesture={pan}>
@@ -116,7 +124,7 @@ export function BottomSheetModal({ visible, onClose, title, children, onClosed }
                     </GestureDetector>
                     {children}
                 </Animated.View>
-            </View>
+            </GestureHandlerRootView>
             <ConfirmDialogHost layer />
         </Modal>
     );

@@ -1,10 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 import { Dimensions, Modal, Pressable, Text, View } from 'react-native';
 import Animated, { Easing, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
-import { useTheme } from '@/Context/ThemeContext';
 import { Icon } from '@/components/Shared/Ui/Icon';
 import { GLOSSARY, type GlossaryKey } from '@/constants/glossary';
 import { type TooltipPlacement, tooltipPosition } from '@/utils/tooltipPosition';
+import { COLORS } from '@/Shared/Global/colors';
 
 const TOOLTIP_WIDTH = 260;
 const AUTO_CLOSE_MS = 6000;
@@ -16,7 +16,6 @@ type InfoTooltipProps = {
 
 /** Boton de ayuda que muestra la explicacion del glosario en una burbuja flotante. */
 export function InfoTooltip({ term, size = 16 }: InfoTooltipProps) {
-    const { colors } = useTheme();
     const anchorRef = useRef<View>(null);
     const [placement, setPlacement] = useState<TooltipPlacement | null>(null);
     const progress = useSharedValue(0);
@@ -61,7 +60,7 @@ export function InfoTooltip({ term, size = 16 }: InfoTooltipProps) {
                 accessibilityRole="button"
                 accessibilityLabel={`Qué es ${entry.title}`}
             >
-                <Icon name="circle-help" size={size} color={colors.texto2} />
+                <Icon name="circle-help" size={size} color={COLORS.texto2} />
             </Pressable>
             {placement ? (
                 <Modal visible transparent statusBarTranslucent animationType="none" onRequestClose={close}>

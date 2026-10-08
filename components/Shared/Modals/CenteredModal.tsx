@@ -1,10 +1,9 @@
-import { type ReactNode, useEffect, useState } from 'react';
+import { type ReactNode, useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, Text, View } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withDelay, withTiming } from 'react-native-reanimated';
-import { useTheme } from '@/Context/ThemeContext';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
 import { useModalDepthStore } from '@/stores/shared/modalDepthStore';
-import { BRAND } from '@/Shared/Global/colors';
+import { BRAND, COLORS } from '@/Shared/Global/colors';
 
 type CenteredModalProps = {
     visible: boolean;
@@ -23,6 +22,8 @@ type Slot = { key: string; node: ReactNode };
 function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, countsDepth = true, children }: CenteredModalProps) {
     const [mounted, setMounted] = useState(visible);
     const [slot, setSlot] = useState<Slot>({ key: contentKey, node: children });
+    const [swapping, setSwapping] = useState(false);
+    const slotKey = useRef(contentKey);
     const progress = useSharedValue(0);
     const slotOpacity = useSharedValue(1);
     const increment = useModalDepthStore((state) => state.increment);
@@ -30,6 +31,11 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, coun
 
     useEffect(() => {
         if (visible) {
+            // Al abrir, el contenido actual se muestra de inmediato, sin arrastrar el del cierre anterior.
+            slotKey.current = contentKey;
+            setSlot({ key: contentKey, node: children });
+            setSwapping(false);
+            slotOpacity.value = 1;
             setMounted(true);
             progress.value = withTiming(1, { duration: 220, easing: Easing.out(Easing.cubic) });
             return;
@@ -37,7 +43,8 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, coun
         progress.value = withTiming(0, { duration: 180 }, (finished) => {
             if (finished) runOnJS(setMounted)(false);
         });
-    }, [visible, progress]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [visible]);
 
     useEffect(() => {
         if (!mounted || !countsDepth) return;
@@ -45,21 +52,25 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, coun
         return decrement;
     }, [mounted, countsDepth, increment, decrement]);
 
-    // Contenido nuevo con la misma clave: se actualiza sin animar.
+    // Contenido nuevo con la misma clave: se actualiza sin animar. Con otra clave: fundido.
     useEffect(() => {
-        if (slot.key === contentKey) {
+        if (!visible) return;
+        if (slotKey.current === contentKey) {
             setSlot({ key: contentKey, node: children });
             return;
         }
+        slotKey.current = contentKey;
+        setSwapping(true);
         const swap = () => {
             setSlot({ key: contentKey, node: children });
+            setSwapping(false);
             slotOpacity.value = withDelay(40, withTiming(1, { duration: 240 }));
         };
         slotOpacity.value = withTiming(0, { duration: 160 }, (finished) => {
             if (finished) runOnJS(swap)();
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [contentKey, children]);
+    }, [contentKey, children, visible]);
 
     const backdropStyle = useAnimatedStyle(() => ({ opacity: progress.value }));
     const cardStyle = useAnimatedStyle(() => ({
@@ -81,7 +92,7 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, coun
                     <Animated.View className="flex-1 bg-velo/60" style={backdropStyle} />
                 </Pressable>
                 <Animated.View style={cardStyle} className="w-full max-w-[360px] rounded-4xl bg-fondo2 px-6 pb-6 pt-7">
-                    <Animated.View style={slotStyle} className="items-center gap-2">
+                    <Animated.View style={slotStyle} pointerEvents={swapping ? 'none' : 'auto'} className="items-center gap-2">
                         {slot.node}
                     </Animated.View>
                 </Animated.View>
@@ -91,9 +102,8 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, coun
 }
 
 function ModalIcon({ name, tone = 'primary' }: { name: IconName; tone?: 'primary' | 'danger' | 'success' }) {
-    const { colors } = useTheme();
-    const color = { primary: colors.primario, danger: BRAND.rojo, success: BRAND.verde }[tone];
-    const surface = { primary: 'bg-primario/12', danger: 'bg-rojo/12', success: 'bg-verde/12' }[tone];
+    const color = { primary: COLORS.primario, danger: BRAND.rojo, success: BRAND.verde }[tone];
+    const surface = { primary: 'bg-primario/15', danger: 'bg-rojo/15', success: 'bg-verde/15' }[tone];
     return (
         <View className={`mb-2 h-16 w-16 items-center justify-center rounded-full ${surface}`}>
             <Icon name={name} size={30} color={color} strokeWidth={2.2} />
