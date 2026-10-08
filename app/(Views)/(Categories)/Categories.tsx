@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import { Alert, Pressable, Text, View } from 'react-native';
-import { Button } from '@/components/Shared/Button';
-import { Card } from '@/components/Shared/Ui/Card';
-import { Field } from '@/components/Shared/Field';
+import { useMemo, useState } from 'react';
+import { CategoryRow } from '@/components/(Views)/Categories/CategoryRow';
+import { CategorySheet } from '@/components/(Views)/Categories/CategorySheet';
 import { Screen } from '@/components/Layout/Screen';
+import { IconButton } from '@/components/Shared/Buttons/IconButton';
+import { EmptyState } from '@/components/Shared/Feedback/EmptyState';
+import { SearchBar } from '@/components/Shared/Forms/SearchBar';
+import { toast } from '@/services/toast/toast';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import type { Category } from '@/types/rates';
-import { parseAmount } from '@/utils/format';
-import { type CategoryErrors, validateCategory } from '@/utils/validation';
+import { matchesQuery } from '@/utils/text';
+
+type SheetState = { open: boolean; category: Category | null };
 
 export default function Categories() {
     const operations = useOperationsStore((state) => state.operations);
@@ -17,85 +20,65 @@ export default function Categories() {
     const updateCategory = useRatesStore((state) => state.updateCategory);
     const removeCategory = useRatesStore((state) => state.removeCategory);
 
-    const [editingId, setEditingId] = useState<string | null>(null);
-    const [name, setName] = useState('');
-    const [rate, setRate] = useState('');
-    const [errors, setErrors] = useState<CategoryErrors>({});
-    const [message, setMessage] = useState('');
+    const [query, setQuery] = useState('');
+    const [sheet, setSheet] = useState<SheetState>({ open: false, category: null });
+    const [pendingToast, setPendingToast] = useState<string | null>(null);
 
-    const resetForm = () => {
-        setEditingId(null);
-        setName('');
-        setRate('');
-        setErrors({});
-    };
+    const filtered = useMemo(() => categories.filter((item) => matchesQuery(item.name, query)), [categories, query]);
 
-    const startEditing = (category: Category) => {
-        setEditingId(category.id);
-        setName(category.name);
-        setRate(String(category.tariffRate));
-        setErrors({});
-        setMessage('');
-    };
+    const closeSheet = () => setSheet((current) => ({ ...current, open: false }));
 
-    const save = () => {
-        const form = { name, tariffRate: parseAmount(rate) };
-        const found = validateCategory(form);
-        setErrors(found);
-        if (Object.keys(found).length > 0) return;
-        if (editingId) updateCategory(editingId, form.name, form.tariffRate);
-        else addCategory(form.name, form.tariffRate);
-        setMessage('');
-        resetForm();
+    const save = (name: string, tariffRate: number) => {
+        if (sheet.category) updateCategory(sheet.category.id, name, tariffRate);
+        else addCategory(name, tariffRate);
+        setPendingToast(sheet.category ? 'Categoría actualizada' : 'Categoría agregada');
+        closeSheet();
     };
 
     const remove = (category: Category) => {
         const removed = removeCategory(category.id, operations);
-        setMessage(removed ? '' : `No se puede eliminar "${category.name}": hay operaciones que la usan.`);
-        if (removed && editingId === category.id) resetForm();
+        if (removed) {
+            setPendingToast('Categoría eliminada');
+            closeSheet();
+        }
+        return removed;
     };
 
-    const confirmRemove = (category: Category) => {
-        Alert.alert('Eliminar categoría', `¿Eliminar "${category.name}"?`, [
-            { text: 'Cancelar', style: 'cancel' },
-            { text: 'Eliminar', style: 'destructive', onPress: () => remove(category) },
-        ]);
+    const onSheetClosed = () => {
+        if (pendingToast) toast.success(pendingToast);
+        setPendingToast(null);
     };
 
     return (
-        <Screen title="Categorías">
-            <Card>
-                <Text className="text-base font-bold text-texto1">Aranceles por categoría</Text>
-                {categories.length === 0 ? (
-                    <Text className="text-sm text-texto2">No hay categorías. Agrega una para poder cotizar.</Text>
-                ) : null}
-                {categories.map((category) => (
-                    <View
-                        key={category.id}
-                        className="flex-row items-center justify-between gap-3 border-b border-borde py-2"
-                    >
-                        <Pressable className="flex-1" onPress={() => startEditing(category)} accessibilityRole="button">
-                            <Text className="text-base text-texto1">{category.name}</Text>
-                            <Text className="text-sm text-texto2">Toca para editar</Text>
-                        </Pressable>
-                        <Text className="text-base font-bold text-texto1">{category.tariffRate}%</Text>
-                        <Pressable onPress={() => confirmRemove(category)} hitSlop={8} accessibilityRole="button">
-                            <Text className="text-sm font-semibold text-rojo">Eliminar</Text>
-                        </Pressable>
-                    </View>
-                ))}
-                {message ? <Text className="text-sm text-rojo">{message}</Text> : null}
-            </Card>
-
-            <Card>
-                <Text className="text-base font-bold text-texto1">
-                    {editingId ? 'Editar categoría' : 'Agregar categoría'}
-                </Text>
-                <Field label="Nombre" value={name} onChangeText={setName} error={errors.name} />
-                <Field label="Arancel (%)" value={rate} onChangeText={setRate} numeric error={errors.tariffRate} />
-                <Button label={editingId ? 'Guardar cambios' : 'Agregar'} onPress={save} />
-                {editingId ? <Button label="Cancelar" variant="secondary" onPress={resetForm} /> : null}
-            </Card>
+        <Screen
+            title="Categorías"
+            actions={<IconButton icon="plus" tone="primary" label="Nueva categoría" onPress={() => setSheet({ open: true, category: null })} />}
+        >
+            <SearchBar value={query} onChangeText={setQuery} placeholder="Buscar categoría" />
+            {filtered.length === 0 ? (
+                categories.length === 0 ? (
+                    <EmptyState
+                        icon="tags"
+                        title="Sin categorías"
+                        subtitle="Agrega una categoría con su arancel para poder cotizar."
+                        action={{ label: 'Nueva categoría', icon: 'plus', onPress: () => setSheet({ open: true, category: null }) }}
+                    />
+                ) : (
+                    <EmptyState icon="search" title="Sin resultados" subtitle={`Ninguna categoría coincide con "${query}".`} />
+                )
+            ) : (
+                filtered.map((category) => (
+                    <CategoryRow key={category.id} category={category} onPress={() => setSheet({ open: true, category })} />
+                ))
+            )}
+            <CategorySheet
+                visible={sheet.open}
+                onClose={closeSheet}
+                category={sheet.category}
+                onSave={save}
+                onDelete={remove}
+                onClosed={onSheetClosed}
+            />
         </Screen>
     );
 }

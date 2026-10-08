@@ -4,6 +4,7 @@ import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withDelay,
 import { useTheme } from '@/Context/ThemeContext';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
 import { useModalDepthStore } from '@/stores/shared/modalDepthStore';
+import { BRAND } from '@/Shared/Global/colors';
 
 type CenteredModalProps = {
     visible: boolean;
@@ -12,12 +13,14 @@ type CenteredModalProps = {
     contentKey: string;
     /** false bloquea el cierre por fondo o boton fisico, por ejemplo mientras se procesa. */
     canClose?: boolean;
+    /** false para el dialogo de confirmacion global, que no debe ocultar a los hosts de la raiz. */
+    countsDepth?: boolean;
     children: ReactNode;
 };
 
 type Slot = { key: string; node: ReactNode };
 
-function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, children }: CenteredModalProps) {
+function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, countsDepth = true, children }: CenteredModalProps) {
     const [mounted, setMounted] = useState(visible);
     const [slot, setSlot] = useState<Slot>({ key: contentKey, node: children });
     const progress = useSharedValue(0);
@@ -37,10 +40,10 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, chil
     }, [visible, progress]);
 
     useEffect(() => {
-        if (!mounted) return;
+        if (!mounted || !countsDepth) return;
         increment();
         return decrement;
-    }, [mounted, increment, decrement]);
+    }, [mounted, countsDepth, increment, decrement]);
 
     // Contenido nuevo con la misma clave: se actualiza sin animar.
     useEffect(() => {
@@ -89,7 +92,7 @@ function CenteredModalRoot({ visible, onClose, contentKey, canClose = true, chil
 
 function ModalIcon({ name, tone = 'primary' }: { name: IconName; tone?: 'primary' | 'danger' | 'success' }) {
     const { colors } = useTheme();
-    const color = { primary: colors.primario, danger: '#EF4444', success: '#0BBE90' }[tone];
+    const color = { primary: colors.primario, danger: BRAND.rojo, success: BRAND.verde }[tone];
     const surface = { primary: 'bg-primario/12', danger: 'bg-rojo/12', success: 'bg-verde/12' }[tone];
     return (
         <View className={`mb-2 h-16 w-16 items-center justify-center rounded-full ${surface}`}>

@@ -1,4 +1,6 @@
 import { Pressable, Text, View } from 'react-native';
+import { useTheme } from '@/Context/ThemeContext';
+import { Icon } from '@/components/Shared/Ui/Icon';
 import { StatusBadge } from '@/components/Shared/Ui/StatusBadge';
 import { TYPE_LABELS } from '@/constants/labels';
 import type { Operation } from '@/types/operation';
@@ -11,24 +13,29 @@ type OperationRowProps = {
 };
 
 export function OperationRow({ operation, categoryName, onPress }: OperationRowProps) {
+    const { colors } = useTheme();
+
     return (
         <Pressable
             onPress={onPress}
             accessibilityRole="button"
-            className="gap-2 rounded-2xl border border-borde bg-tarjeta p-4"
+            className="gap-3 rounded-3xl border border-borde bg-fondo2 p-4 active:opacity-80"
         >
-            <View className="flex-row items-start justify-between gap-3">
+            <View className="flex-row items-center gap-3">
+                <View className="h-10 w-10 items-center justify-center rounded-2xl bg-fondo3">
+                    <Icon name={operation.type === 'import' ? 'package-check' : 'ship'} size={18} color={colors.texto1} />
+                </View>
                 <View className="flex-1">
                     <Text className="text-base font-semibold text-texto1" numberOfLines={1}>
                         {operation.description}
                     </Text>
-                    <Text className="text-sm text-texto2">
+                    <Text className="text-xs text-texto2" numberOfLines={1}>
                         {TYPE_LABELS[operation.type]} · {categoryName}
                     </Text>
                 </View>
                 <View className="items-end">
                     <Text className="text-base font-bold text-texto1">{formatUsd(operation.breakdown.total.usd)}</Text>
-                    <Text className="text-sm text-texto2">{formatBs(operation.breakdown.total.bs)}</Text>
+                    <Text className="text-xs text-texto2">{formatBs(operation.breakdown.total.bs)}</Text>
                 </View>
             </View>
             <View className="flex-row items-center justify-between">

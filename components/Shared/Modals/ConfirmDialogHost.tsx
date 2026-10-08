@@ -14,11 +14,11 @@ export function ConfirmDialogHost({ layer = false }: ConfirmDialogHostProps) {
     const settle = useConfirmStore((state) => state.settle);
     const depth = useModalDepthStore((state) => state.depth);
 
-    if (!layer && depth > 0 && !visible) return null;
+    if (!layer && depth > 0) return null;
     if (!options) return null;
 
     return (
-        <CenteredModal visible={visible} onClose={() => settle(false)} contentKey="confirm">
+        <CenteredModal visible={visible} onClose={() => settle(false)} contentKey="confirm" countsDepth={false}>
             <CenteredModal.Icon name={options.destructive ? 'trash' : 'circle-help'} tone={options.destructive ? 'danger' : 'primary'} />
             <CenteredModal.Title>{options.title}</CenteredModal.Title>
             <CenteredModal.Subtitle>{options.message}</CenteredModal.Subtitle>

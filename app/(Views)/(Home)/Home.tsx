@@ -1,9 +1,14 @@
 import { useRouter } from 'expo-router';
 import { Text, View } from 'react-native';
+import Animated, { FadeInDown } from 'react-native-reanimated';
+import { QuickActions } from '@/components/(Views)/Home/QuickActions';
+import { RateCard } from '@/components/(Views)/Home/RateCard';
 import { OperationRow } from '@/components/(Views)/History/OperationRow';
-import { KpiCard } from '@/components/Shared/Ui/KpiCard';
-import { Button } from '@/components/Shared/Button';
 import { Screen } from '@/components/Layout/Screen';
+import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
+import { IconButton } from '@/components/Shared/Buttons/IconButton';
+import { EmptyState } from '@/components/Shared/Feedback/EmptyState';
+import { KpiCard } from '@/components/Shared/Ui/KpiCard';
 import { summarizeOperations } from '@/services/operations/summary';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
@@ -21,33 +26,17 @@ export default function Home() {
     const recent = operations.slice(0, RECENT_COUNT);
 
     const categoryName = (id: string) => categories.find((item) => item.id === id)?.name ?? 'Sin categoría';
+    const openSettings = () => router.push('/Settings');
 
     return (
-        <Screen title="Aduanas" showLogo>
-            <View className="gap-1 rounded-2xl bg-primario p-4">
-                <Text className="text-xs font-semibold uppercase text-white">Tasa del día</Text>
-                <Text className="text-3xl font-bold text-white">{formatBs(exchangeRate)}</Text>
-                <Text className="text-sm text-white">por $1.00</Text>
-            </View>
+        <Screen title="Aduanas" showLogo actions={<IconButton icon="settings" label="Ajustes" onPress={openSettings} />}>
+            <RateCard exchangeRate={exchangeRate} onPress={openSettings} />
 
-            <View className="flex-row gap-3">
-                <KpiCard
-                    label="Recaudado"
-                    value={formatUsd(summary.collected.usd)}
-                    detail={formatBs(summary.collected.bs)}
-                    icon="wallet"
-                    tone="success"
-                />
-                <KpiCard
-                    label="Por cobrar"
-                    value={formatUsd(summary.receivable.usd)}
-                    detail={formatBs(summary.receivable.bs)}
-                    icon="banknote"
-                    tone="warning"
-                />
-            </View>
-
-            <View className="flex-row gap-3">
+            <Animated.View entering={FadeInDown.duration(320)} className="flex-row gap-3">
+                <KpiCard label="Recaudado" value={formatUsd(summary.collected.usd)} detail={formatBs(summary.collected.bs)} icon="wallet" tone="success" />
+                <KpiCard label="Por cobrar" value={formatUsd(summary.receivable.usd)} detail={formatBs(summary.receivable.bs)} icon="banknote" tone="warning" />
+            </Animated.View>
+            <Animated.View entering={FadeInDown.duration(320).delay(80)} className="flex-row gap-3">
                 <KpiCard label="Pendientes" value={String(summary.pendingCount)} detail="operaciones sin pagar" icon="receipt" />
                 <KpiCard
                     label="Operaciones"
@@ -55,24 +44,43 @@ export default function Home() {
                     detail={`${summary.importCount} import. · ${summary.exportCount} export.`}
                     icon="trending-up"
                 />
+            </Animated.View>
+
+            <QuickActions
+                actions={[
+                    { label: 'Cotizar', icon: 'calculator', onPress: () => goToTab(router, '/Quote') },
+                    { label: 'Categorías', icon: 'tags', onPress: () => goToTab(router, '/Categories') },
+                    { label: 'Historial', icon: 'history', onPress: () => goToTab(router, '/History') },
+                ]}
+            />
+
+            <View className="flex-row items-end justify-between pt-2">
+                <Text className="text-xs font-semibold uppercase tracking-wider text-texto2">Últimas operaciones</Text>
+                {operations.length > RECENT_COUNT ? (
+                    <Text className="text-xs font-semibold text-primario" onPress={() => goToTab(router, '/History')}>
+                        Ver todas
+                    </Text>
+                ) : null}
             </View>
-
-            <Button label="Nueva cotización" onPress={() => goToTab(router, '/Quote')} />
-
-            <Text className="pt-2 text-sm font-semibold uppercase text-texto2">Últimas operaciones</Text>
             {recent.length === 0 ? (
-                <Text className="text-sm text-texto2">Todavía no hay operaciones registradas.</Text>
+                <EmptyState
+                    icon="inbox"
+                    title="Sin operaciones todavía"
+                    subtitle="Cotiza una importación o exportación para empezar."
+                    action={{ label: 'Nueva cotización', icon: 'calculator', onPress: () => goToTab(router, '/Quote') }}
+                />
             ) : (
                 <>
-                    {recent.map((operation) => (
-                        <OperationRow
-                            key={operation.id}
-                            operation={operation}
-                            categoryName={categoryName(operation.categoryId)}
-                            onPress={() => router.push({ pathname: '/OperationDetail', params: { id: operation.id } })}
-                        />
+                    {recent.map((operation, index) => (
+                        <Animated.View key={operation.id} entering={FadeInDown.duration(320).delay(160 + index * 60)}>
+                            <OperationRow
+                                operation={operation}
+                                categoryName={categoryName(operation.categoryId)}
+                                onPress={() => router.push({ pathname: '/OperationDetail', params: { id: operation.id } })}
+                            />
+                        </Animated.View>
                     ))}
-                    <Button label="Ver todo el historial" variant="secondary" onPress={() => goToTab(router, '/History')} />
+                    <ActionButton label="Nueva cotización" icon="calculator" onPress={() => goToTab(router, '/Quote')} />
                 </>
             )}
         </Screen>

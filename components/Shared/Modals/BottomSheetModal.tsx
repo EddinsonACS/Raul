@@ -4,6 +4,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { runOnJS, useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { IconButton } from '@/components/Shared/Buttons/IconButton';
+import { ConfirmDialogHost } from '@/components/Shared/Modals/ConfirmDialogHost';
 import { useModalDepthStore } from '@/stores/shared/modalDepthStore';
 
 const SCREEN_HEIGHT = Dimensions.get('window').height;
@@ -116,6 +117,7 @@ export function BottomSheetModal({ visible, onClose, title, children, onClosed }
                     {children}
                 </Animated.View>
             </View>
+            <ConfirmDialogHost layer />
         </Modal>
     );
 }

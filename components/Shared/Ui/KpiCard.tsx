@@ -1,6 +1,7 @@
 import { Text, View } from 'react-native';
 import { useTheme } from '@/Context/ThemeContext';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
+import { BRAND } from '@/Shared/Global/colors';
 
 type KpiCardProps = {
     label: string;
@@ -16,11 +17,10 @@ const TONE = {
     warning: { bg: 'bg-amarillo/15', key: 'amarillo' },
 } as const;
 
-const TONE_HEX = { verde: '#0BBE90', amarillo: '#F59E0B' } as const;
 
 export function KpiCard({ label, value, detail, icon, tone = 'primary' }: KpiCardProps) {
     const { colors } = useTheme();
-    const iconColor = tone === 'primary' ? colors.primario : TONE_HEX[TONE[tone].key as keyof typeof TONE_HEX];
+    const iconColor = tone === 'primary' ? colors.primario : BRAND[TONE[tone].key];
 
     return (
         <View className="flex-1 gap-2 rounded-3xl border border-borde bg-fondo2 p-4">
