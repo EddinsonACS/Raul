@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Dimensions, Modal, Pressable, Text, View } from 'react-native';
+import { Dimensions, Modal, Platform, Pressable, StatusBar, Text, View } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { COLORS } from '@/Shared/Global/colors';
 import { Icon } from '@/components/Shared/Ui/Icon';
@@ -27,7 +27,9 @@ export function InfoTooltip({ term, size = 16 }: InfoTooltipProps) {
 
     const show = () => {
         anchorRef.current?.measureInWindow((x, y, width, h) => {
-            setAnchor({ x, y, width, height: h });
+            // En Android la medida excluye la barra de estado, pero el Modal translucido arranca en el borde superior.
+            const statusBarOffset = Platform.OS === 'android' ? (StatusBar.currentHeight ?? 0) : 0;
+            setAnchor({ x, y: y + statusBarOffset, width, height: h });
             setOpen(true);
         });
     };
