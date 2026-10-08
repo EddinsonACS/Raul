@@ -5,6 +5,7 @@ import type { OperationInput } from '@/types/operation';
 
 const INPUT: OperationInput = {
     type: 'import',
+    transport: 'air',
     description: 'Teléfono',
     categoryId: 'cat-electronica',
     value: 300,
@@ -23,6 +24,7 @@ describe('summarizeOperations', () => {
             importCount: 0,
             exportCount: 0,
             pendingCount: 0,
+            transportCounts: { sea: 0, air: 0, land: 0 },
             receivable: { usd: 0, bs: 0 },
             collected: { usd: 0, bs: 0 },
         });
@@ -31,7 +33,7 @@ describe('summarizeOperations', () => {
     it('separa lo cobrado de lo que falta por cobrar y cuenta por tipo', () => {
         const store = useOperationsStore.getState();
         store.addOperation(INPUT, 5, DEFAULT_SETTINGS);
-        store.addOperation({ ...INPUT, type: 'export' }, 5, DEFAULT_SETTINGS);
+        store.addOperation({ ...INPUT, type: 'export', transport: 'sea' }, 5, DEFAULT_SETTINGS);
         const paid = store.addOperation(INPUT, 5, DEFAULT_SETTINGS);
         const released = store.addOperation(INPUT, 5, DEFAULT_SETTINGS);
         store.payOperation(paid.id);
@@ -43,8 +45,9 @@ describe('summarizeOperations', () => {
             importCount: 3,
             exportCount: 1,
             pendingCount: 2,
-            receivable: { usd: 84.12, bs: 75708 },
-            collected: { usd: 148.24, bs: 133416 },
+            transportCounts: { sea: 1, air: 3, land: 0 },
+            receivable: { usd: 88.06, bs: 79254 },
+            collected: { usd: 156.12, bs: 140508 },
         });
     });
 });

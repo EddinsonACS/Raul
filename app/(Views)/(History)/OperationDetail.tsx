@@ -8,7 +8,7 @@ import { OperationMissing } from '@/components/Shared/Feedback/OperationMissing'
 import { Card } from '@/components/Shared/Ui/Card';
 import { MoneyRow } from '@/components/Shared/Ui/MoneyRow';
 import { StatusBadge } from '@/components/Shared/Ui/StatusBadge';
-import { TYPE_LABELS } from '@/constants/labels';
+import { TRANSPORT_LABELS, TYPE_LABELS } from '@/constants/labels';
 import { toMoney } from '@/services/taxes/calculateTaxes';
 import { toast } from '@/services/toast/toast';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
@@ -71,6 +71,7 @@ export default function OperationDetail() {
                 </View>
                 <View className="gap-2 border-t border-borde pt-3">
                     <Line label="Tipo" value={TYPE_LABELS[operation.type]} />
+                    <Line label="Transporte" value={TRANSPORT_LABELS[operation.transport]} />
                     <Line label="Categoría" value={categoryName} />
                     <Line label="Registrada" value={formatDate(operation.createdAt)} />
                     {operation.paidAt ? <Line label="Pagada" value={formatDate(operation.paidAt)} /> : null}

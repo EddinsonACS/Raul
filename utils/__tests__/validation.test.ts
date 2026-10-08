@@ -27,16 +27,17 @@ describe('validateOperation', () => {
 });
 
 describe('validateSettings', () => {
-    const VALID = { vatRate: 16, exemptMinimum: 200, exportFee: 10, exchangeRate: 900 };
+    const VALID = { vatRate: 16, exemptMinimum: 100, customsFeeRate: 1, exportFee: 10, exchangeRate: 900 };
 
     it('acepta la configuración inicial y los ceros permitidos', () => {
         expect(validateSettings(VALID)).toEqual({});
-        expect(validateSettings({ vatRate: 0, exemptMinimum: 0, exportFee: 0, exchangeRate: 1 })).toEqual({});
+        expect(validateSettings({ vatRate: 0, exemptMinimum: 0, customsFeeRate: 0, exportFee: 0, exchangeRate: 1 })).toEqual({});
     });
 
-    it('exige IVA entre 0 y 100', () => {
+    it('exige porcentajes entre 0 y 100', () => {
         expect(validateSettings({ ...VALID, vatRate: 101 }).vatRate).toBe('Debe estar entre 0 y 100.');
         expect(validateSettings({ ...VALID, vatRate: NaN }).vatRate).toBe('Debe estar entre 0 y 100.');
+        expect(validateSettings({ ...VALID, customsFeeRate: -1 }).customsFeeRate).toBe('Debe estar entre 0 y 100.');
     });
 
     it('exige tasa del día mayor que cero', () => {
@@ -54,7 +55,7 @@ describe('validateSettings', () => {
 describe('validateCategory', () => {
     it('acepta nombre y tasa válidos, incluido 0 y 100', () => {
         expect(validateCategory({ name: 'Libros', tariffRate: 0 })).toEqual({});
-        expect(validateCategory({ name: 'Lujo', tariffRate: 100 })).toEqual({});
+        expect(validateCategory({ name: 'Lujo', tariffRate: 100, tariffByMode: { air: 30, sea: 20 } })).toEqual({});
     });
 
     it('exige nombre y tasa entre 0 y 100', () => {
@@ -62,5 +63,12 @@ describe('validateCategory', () => {
         expect(errors.name).toBe('Escribe un nombre.');
         expect(errors.tariffRate).toBe('Debe estar entre 0 y 100.');
         expect(validateCategory({ name: 'X', tariffRate: NaN }).tariffRate).toBe('Debe estar entre 0 y 100.');
+    });
+
+    it('revisa cada arancel por transporte', () => {
+        const errors = validateCategory({ name: 'Ropa', tariffRate: 20, tariffByMode: { air: NaN, land: 101, sea: 10 } });
+        expect(errors.air).toBe('Debe estar entre 0 y 100.');
+        expect(errors.land).toBe('Debe estar entre 0 y 100.');
+        expect(errors.sea).toBeUndefined();
     });
 });

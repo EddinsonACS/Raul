@@ -54,10 +54,10 @@ Cuatro pestañas inferiores, en este orden:
 
 | Pestaña | Contenido |
 |---|---|
-| Inicio | Tablero: tasa del día en tarjeta con degradado, indicadores 2×2 (recaudado, por cobrar, pendientes, operaciones), accesos rápidos y las tres últimas operaciones. |
-| Cotizar | Calculadora con desglose en vivo y tooltip en cada término. "Registrar" abre una hoja inferior que pide la descripción. |
-| Categorías | Buscador y lista limpia (nombre y porcentaje). Tocar una fila abre una hoja inferior para editar o eliminar (con confirmación). Botón **+** en el encabezado para crear. |
-| Historial | Buscador, filtros por estado (Todas, Pendientes, Pagadas, Liberadas) y lista. Estado vacío ilustrado. |
+| Inicio | Tablero: tasa del día en tarjeta con degradado; gráficas de pendientes (anillo), operaciones por tipo y por transporte (barras apiladas), recaudado por día y por cobrar por operación; las tres últimas operaciones. |
+| Cotizar | Tipo, transporte (marítimo / aéreo / terrestre), categoría y montos; desglose en vivo con tooltip en cada término. "Registrar" abre una hoja inferior que pide la descripción. |
+| Categorías | Buscador y lista limpia (nombre y porcentaje, o porcentaje por transporte). Tocar una fila abre una hoja inferior para editar (con interruptor "arancel distinto por transporte") o eliminar con confirmación. Botón **+** en el encabezado para crear. |
+| Historial | Buscador y filtros por estado, por tipo (importación / exportación) y por transporte. Cada fila lleva el ícono de su transporte. Estado vacío ilustrado. |
 
 **Ajustes** no es pestaña: se abre desde el engranaje a la derecha del
 encabezado. Contiene tipo de cambio, impuestos de importación (IVA y mínimo
@@ -102,33 +102,51 @@ editar, eliminar ni volver a pagar.
 
 ## Cálculo
 
-Todos los cálculos se hacen en USD. Los bolívares se obtienen multiplicando cada
-monto en USD por la tasa del día.
+Todos los cálculos se hacen en USD y siguen la normativa venezolana vigente.
+Los bolívares se obtienen multiplicando cada monto en USD por la tasa del día.
 
 ### Importación
 
-1. Valor en aduana = valor + flete + seguro.
-2. Si el valor en aduana es menor o igual al mínimo exento, el arancel es 0.
-3. Si no, arancel = valor en aduana × tasa de arancel de la categoría.
-4. IVA = (valor en aduana + arancel) × tasa de IVA.
-5. Total = arancel + IVA.
+1. Valor en aduana (CIF) = valor del producto + flete + seguro.
+2. Si el valor del producto es menor o igual al mínimo exento, el envío no
+   paga ningún tributo (total 0). Referencia: Resolución 3.283, G.O. 36.127
+   (1997): envíos courier de hasta 100 USD libres de gravámenes y tributos.
+3. Arancel = valor en aduana × tasa de la categoría (si la categoría define
+   un arancel por transporte, el del transporte elegido).
+4. Tasa por servicios de aduana = valor en aduana × 1 %.
+5. IVA = (valor en aduana + arancel + tasa aduanera) × 16 %.
+6. Total = arancel + tasa aduanera + IVA.
 
 ### Exportación
 
-Arancel 0, IVA 0. Total = tasa fija de trámite.
+Arancel 0 e IVA con alícuota 0 %. Total = tasa fija de trámite.
 
 ### Redondeo
 
 Cada monto en USD se redondea a dos decimales. Cada monto en Bs se calcula a
 partir del monto en USD ya redondeado y se redondea a dos decimales.
 
-### Ejemplos (IVA 16 %, mínimo exento 200 USD, tasa 900 Bs/USD)
+### Ejemplos (IVA 16 %, tasa aduanera 1 %, mínimo exento 100 USD, tasa 900 Bs/USD)
 
-| Caso | Valor en aduana | Arancel | IVA | Total USD | Total Bs |
-|---|---|---|---|---|---|
-| Ropa (20 %): 100 + 20 + 5 | 125,00 | 0,00 (exento) | 20,00 | 20,00 | 18.000,00 |
-| Electrónica (5 %): 300 + 30 + 10 | 340,00 | 17,00 | 57,12 | 74,12 | 66.708,00 |
-| Exportación, trámite 10 USD | — | 0,00 | 0,00 | 10,00 | 9.000,00 |
+| Caso | Valor en aduana | Arancel | Tasa | IVA | Total USD | Total Bs |
+|---|---|---|---|---|---|---|
+| Ropa (20 %): 100 + 20 + 5 | 125,00 | 0,00 | 0,00 | 0,00 (exento) | 0,00 | 0,00 |
+| Electrónica (5 %): 300 + 30 + 10 | 340,00 | 17,00 | 3,40 | 57,66 | 78,06 | 70.254,00 |
+| Exportación, trámite 10 USD | — | 0,00 | 0,00 | 0,00 | 10,00 | 9.000,00 |
+
+### Transporte
+
+Cada operación indica cómo llega la mercancía: marítimo, aéreo o terrestre.
+Una categoría tiene un arancel general y, opcionalmente, un arancel distinto
+por transporte. En la ley el arancel depende del producto y no del transporte;
+la opción existe como funcionalidad de la app y el tooltip lo aclara.
+
+### Base legal consultada
+
+Ley Orgánica de Aduanas (G.O. 6.507, 2020); Arancel de Aduanas (Decreto 4.944
+y reformas); Ley del IVA (16 %, exportaciones al 0 %); Resolución 3.283 (G.O.
+36.127, 1997) para envíos courier; Decreto 5.197 (G.O. 6.952, 2025) con
+exoneraciones para códigos específicos, fuera del alcance de la app.
 
 ## Monedas
 
@@ -146,27 +164,29 @@ partir del monto en USD ya redondeado y se redondea a dos decimales.
 |---|---|
 | id | Identificador único |
 | type | `import` o `export` |
+| transport | `sea`, `air` o `land` |
 | description | Texto libre |
 | categoryId | Categoría elegida |
 | value, freight, insurance | Montos en USD |
-| breakdown | Valor en aduana, arancel, IVA y total, en USD y en Bs |
+| breakdown | Valor en aduana, arancel, tasa aduanera, IVA y total, en USD y en Bs; `exempt` |
 | exchangeRate | Tasa Bs/USD usada |
 | status | `pending`, `paid` o `released` |
 | createdAt, paidAt | Fechas |
 | receiptNumber | Consecutivo `ADU-000001`, asignado al pagar |
 
-**Categoría**: id, nombre, tasa de arancel (%).
+**Categoría**: id, nombre, arancel general (%) y, opcionalmente, arancel por transporte (`tariffByMode`).
 
-**Configuración**: tasa de IVA (%), mínimo exento (USD), tasa de trámite de
-exportación (USD), tasa del día (Bs/USD).
+**Configuración**: tasa de IVA (%), tasa por servicios de aduana (%), mínimo
+exento sobre el valor del producto (USD), tasa de trámite de exportación (USD),
+tasa del día (Bs/USD).
 
 El desglose se guarda con la operación. Cambiar tasas o categorías después no
 recalcula operaciones existentes.
 
 ### Valores iniciales
 
-IVA 16 %, mínimo exento 200 USD, trámite de exportación 10 USD, tasa del día
-900 Bs/USD. Categorías: Ropa y calzado 20 %, Electrónica 5 %, Libros 0 %,
+IVA 16 %, tasa aduanera 1 %, mínimo exento 100 USD, trámite de exportación
+10 USD, tasa del día 900 Bs/USD. Categorías: Ropa y calzado 20 %, Electrónica 5 %, Libros 0 %,
 Juguetes 15 %, Cosméticos 15 %, Otros 10 %.
 
 ## Estructura
@@ -212,7 +232,7 @@ Reglas:
 
 - Valor mayor que cero; flete y seguro mayores o iguales a cero.
 - Descripción y categoría obligatorias.
-- Tasas porcentuales entre 0 y 100.
+- Tasas porcentuales entre 0 y 100, incluidos los aranceles por transporte.
 - Tasa del día mayor que cero.
 - Mínimo exento y tasa de trámite mayores o iguales a cero.
 - No se puede eliminar una categoría usada por alguna operación.

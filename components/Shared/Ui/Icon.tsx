@@ -15,6 +15,7 @@ import {
     type LucideIcon,
     PackageCheck,
     Pencil,
+    Plane,
     Plus,
     Receipt,
     Search,
@@ -23,6 +24,7 @@ import {
     Tags,
     Trash2,
     TrendingUp,
+    Truck,
     Wallet,
     X,
 } from 'lucide-react-native';
@@ -44,6 +46,7 @@ const ICONS = {
     info: Info,
     'package-check': PackageCheck,
     pencil: Pencil,
+    plane: Plane,
     plus: Plus,
     receipt: Receipt,
     search: Search,
@@ -52,6 +55,7 @@ const ICONS = {
     tags: Tags,
     trash: Trash2,
     'trending-up': TrendingUp,
+    truck: Truck,
     wallet: Wallet,
     x: X,
 } satisfies Record<string, LucideIcon>;

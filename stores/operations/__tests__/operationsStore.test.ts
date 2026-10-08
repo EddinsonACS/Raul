@@ -4,6 +4,7 @@ import type { OperationInput } from '@/types/operation';
 
 const INPUT: OperationInput = {
     type: 'import',
+    transport: 'air',
     description: 'Teléfono',
     categoryId: 'cat-electronica',
     value: 300,
@@ -25,7 +26,7 @@ describe('operationsStore', () => {
         expect(operation.receiptNumber).toBeNull();
         expect(operation.paidAt).toBeNull();
         expect(operation.exchangeRate).toBe(900);
-        expect(operation.breakdown.total).toEqual({ usd: 74.12, bs: 66708 });
+        expect(operation.breakdown.total).toEqual({ usd: 78.06, bs: 70254 });
         expect(store().operations).toEqual([operation]);
     });
 
@@ -85,7 +86,7 @@ describe('operationsStore', () => {
         store().payOperation(first.id);
         const stored = store().operations.find((o) => o.id === first.id);
         expect(stored?.exchangeRate).toBe(900);
-        expect(stored?.breakdown.total.bs).toBe(66708);
-        expect(second.breakdown.total.bs).toBe(70414);
+        expect(stored?.breakdown.total.bs).toBe(70254);
+        expect(second.breakdown.total.bs).toBe(74157);
     });
 });

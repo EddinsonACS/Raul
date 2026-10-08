@@ -2,6 +2,7 @@ export const BRAND = {
     marca: '#071633',
     marca2: '#0E2A52',
     acento: '#38BDF8',
+    violeta: '#8B5CF6',
     verde: '#0BBE90',
     amarillo: '#F59E0B',
     rojo: '#EF4444',

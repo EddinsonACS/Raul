@@ -1,36 +1,72 @@
 import { Text, View } from 'react-native';
 import { ChartCard } from '@/components/(Views)/Home/ChartCard';
+import { TRANSPORT_LABELS, TRANSPORT_MODES } from '@/constants/labels';
+import type { TransportMode } from '@/types/operation';
 
 type TypeSplitBarProps = {
     importCount: number;
     exportCount: number;
+    transportCounts: Record<TransportMode, number>;
 };
 
-function Legend({ color, label, count }: { color: string; label: string; count: number }) {
+type Segment = { key: string; label: string; count: number; color: string };
+
+// Paleta categorica validada (daltonismo): azul, celeste y violeta. Siempre con leyenda.
+const TRANSPORT_COLORS: Record<TransportMode, string> = { sea: 'bg-primario', air: 'bg-acento', land: 'bg-violeta' };
+
+function StackedBar({ segments }: { segments: Segment[] }) {
+    const total = segments.reduce((sum, segment) => sum + segment.count, 0);
     return (
-        <View className="flex-row items-center gap-1.5">
-            <View className={`h-2.5 w-2.5 rounded-full ${color}`} />
-            <Text className="text-xs text-texto2">
-                {label} <Text className="font-semibold text-texto1">{count}</Text>
-            </Text>
+        <View className="h-3 flex-row gap-0.5 overflow-hidden rounded-full bg-fondo3">
+            {segments
+                .filter((segment) => segment.count > 0)
+                .map((segment) => (
+                    <View key={segment.key} style={{ flex: segment.count / total }} className={`rounded-full ${segment.color}`} />
+                ))}
         </View>
     );
 }
 
-/** Barra apilada: cuantas operaciones son importacion y cuantas exportacion. */
-export function TypeSplitBar({ importCount, exportCount }: TypeSplitBarProps) {
+function Legend({ segments }: { segments: Segment[] }) {
+    return (
+        <View className="flex-row flex-wrap gap-x-3 gap-y-1">
+            {segments.map((segment) => (
+                <View key={segment.key} className="flex-row items-center gap-1.5">
+                    <View className={`h-2.5 w-2.5 rounded-full ${segment.color}`} />
+                    <Text className="text-xs text-texto2">
+                        {segment.label} <Text className="font-semibold text-texto1">{segment.count}</Text>
+                    </Text>
+                </View>
+            ))}
+        </View>
+    );
+}
+
+/** Dos barras apiladas: operaciones por tipo (importacion/exportacion) y por transporte. */
+export function TypeSplitBar({ importCount, exportCount, transportCounts }: TypeSplitBarProps) {
     const total = importCount + exportCount;
-    const importShare = total === 0 ? 0 : importCount / total;
+    const byType: Segment[] = [
+        { key: 'import', label: 'Import.', count: importCount, color: 'bg-primario' },
+        { key: 'export', label: 'Export.', count: exportCount, color: 'bg-acento' },
+    ];
+    const byTransport: Segment[] = TRANSPORT_MODES.map((mode) => ({
+        key: mode,
+        label: TRANSPORT_LABELS[mode],
+        count: transportCounts[mode],
+        color: TRANSPORT_COLORS[mode],
+    }));
 
     return (
         <ChartCard title="Operaciones" value={String(total)} detail="registradas" className="flex-1">
-            <View className="h-3 flex-row gap-0.5 overflow-hidden rounded-full bg-fondo3">
-                {importCount > 0 ? <View style={{ flex: importShare }} className="rounded-full bg-primario" /> : null}
-                {exportCount > 0 ? <View style={{ flex: 1 - importShare }} className="rounded-full bg-acento" /> : null}
+            <View className="gap-1.5">
+                <Text className="text-[11px] font-medium text-texto2">Por tipo</Text>
+                <StackedBar segments={byType} />
+                <Legend segments={byType} />
             </View>
-            <View className="gap-1">
-                <Legend color="bg-primario" label="Importación" count={importCount} />
-                <Legend color="bg-acento" label="Exportación" count={exportCount} />
+            <View className="gap-1.5">
+                <Text className="text-[11px] font-medium text-texto2">Por transporte</Text>
+                <StackedBar segments={byTransport} />
+                <Legend segments={byTransport} />
             </View>
         </ChartCard>
     );

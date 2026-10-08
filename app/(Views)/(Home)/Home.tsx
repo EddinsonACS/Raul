@@ -41,7 +41,7 @@ export default function Home() {
 
             <Animated.View entering={FadeInDown.duration(320)} className="flex-row gap-3">
                 <PendingRing pending={summary.pendingCount} total={summary.totalCount} />
-                <TypeSplitBar importCount={summary.importCount} exportCount={summary.exportCount} />
+                <TypeSplitBar importCount={summary.importCount} exportCount={summary.exportCount} transportCounts={summary.transportCounts} />
             </Animated.View>
             <Animated.View entering={FadeInDown.duration(320).delay(80)}>
                 <CollectedChart collected={summary.collected} days={days} />

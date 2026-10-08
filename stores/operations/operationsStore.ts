@@ -86,6 +86,18 @@ export const useOperationsStore = create<OperationsState>()(
                 },
             };
         },
-        { name: 'aduanas-operations', storage: appStorage }
+        {
+            name: 'aduanas-operations',
+            storage: appStorage,
+            version: 2,
+            // v1 no guardaba el transporte: las operaciones viejas quedan como maritimas.
+            migrate: (persisted) => {
+                const state = persisted as { operations?: (Operation & { transport?: Operation['transport'] })[] };
+                return {
+                    ...state,
+                    operations: (state.operations ?? []).map((operation) => ({ ...operation, transport: operation.transport ?? 'sea' })),
+                };
+            },
+        }
     )
 );

@@ -19,6 +19,7 @@ const toForm = (settings: TaxSettings): SettingsForm => ({
     exchangeRate: String(settings.exchangeRate),
     vatRate: String(settings.vatRate),
     exemptMinimum: String(settings.exemptMinimum),
+    customsFeeRate: String(settings.customsFeeRate),
     exportFee: String(settings.exportFee),
 });
 
@@ -26,6 +27,7 @@ const toSettings = (form: SettingsForm): TaxSettings => ({
     exchangeRate: parseAmount(form.exchangeRate),
     vatRate: parseAmount(form.vatRate),
     exemptMinimum: parseAmount(form.exemptMinimum),
+    customsFeeRate: parseAmount(form.customsFeeRate),
     exportFee: parseAmount(form.exportFee),
 });
 
@@ -110,13 +112,23 @@ export default function Settings() {
                     errorMessage={errors.vatRate}
                 />
                 <FormInput
-                    label="Mínimo exento de arancel"
+                    label="Tasa por servicios de aduana"
+                    labelAccessory={<InfoTooltip term="customsFee" />}
+                    suffix="%"
+                    numeric
+                    value={form.customsFeeRate}
+                    onChangeText={setField('customsFeeRate')}
+                    errorMessage={errors.customsFeeRate}
+                />
+                <FormInput
+                    label="Mínimo exento (valor del producto)"
                     labelAccessory={<InfoTooltip term="exemptMinimum" />}
                     suffix="USD"
                     numeric
                     value={form.exemptMinimum}
                     onChangeText={setField('exemptMinimum')}
                     errorMessage={errors.exemptMinimum}
+                    hint="Envíos hasta este valor no pagan ningún tributo (Res. 3.283/1997: 100 USD)."
                 />
             </Card>
 
@@ -135,20 +147,31 @@ export default function Settings() {
 
             <Card variant="flat">
                 <SectionTitle>Cómo se calcula una importación</SectionTitle>
-                <Step number={1} text="Se suma el valor del producto, el flete y el seguro: ese es el valor en aduana." />
+                <Step number={1} text="Se suma el valor del producto, el flete y el seguro: ese es el valor en aduana (CIF)." />
                 <Formula>Valor en aduana = producto + flete + seguro</Formula>
-                <Step number={2} text="Si el valor en aduana no supera el mínimo exento, no paga arancel. Si lo supera, el arancel es el porcentaje de la categoría." />
+                <Step number={2} text="Si el valor del producto no supera el mínimo exento, el envío no paga ningún tributo y el cálculo termina aquí." />
+                <Formula>Producto ≤ mínimo exento → total 0</Formula>
+                <Step number={3} text="El arancel es el porcentaje de la categoría (y del transporte, si lo distingue) sobre el valor en aduana." />
                 <Formula>Arancel = valor en aduana × tasa de la categoría</Formula>
-                <Step number={3} text="El IVA se cobra sobre el valor en aduana más el arancel." />
-                <Formula>IVA = (valor en aduana + arancel) × IVA</Formula>
-                <Step number={4} text="El total a pagar es la suma del arancel y el IVA." />
-                <Formula>Total = arancel + IVA</Formula>
+                <Step number={4} text="La tasa por servicios de aduana es el 1 % del valor en aduana." />
+                <Formula>Tasa aduanera = valor en aduana × 1 %</Formula>
+                <Step number={5} text="El IVA se cobra sobre el valor en aduana más el arancel y la tasa aduanera." />
+                <Formula>IVA = (valor en aduana + arancel + tasa) × 16 %</Formula>
+                <Step number={6} text="El total a pagar es la suma del arancel, la tasa aduanera y el IVA." />
+                <Formula>Total = arancel + tasa aduanera + IVA</Formula>
             </Card>
 
             <Card variant="flat">
                 <SectionTitle>Cómo se calcula una exportación</SectionTitle>
-                <Step number={1} text="No paga arancel ni IVA. Solo se cobra la tasa fija de trámite." />
+                <Step number={1} text="No paga arancel y el IVA tiene alícuota 0 %. Solo se cobra la tasa fija de trámite." />
                 <Formula>Total = tasa de trámite</Formula>
+            </Card>
+
+            <Card variant="flat">
+                <SectionTitle>Base legal (Venezuela)</SectionTitle>
+                <Text className="text-sm leading-5 text-texto2">
+                    Ley Orgánica de Aduanas (G.O. 6.507, 2020) y Arancel de Aduanas (Decreto 4.944 y reformas): arancel ad valorem de 0 % a 35 % según código arancelario y tasa por servicios de aduana del 1 %. Ley del IVA: 16 % sobre el valor en aduana más los tributos de la importación; exportaciones con alícuota 0 %. Resolución 3.283 (G.O. 36.127, 1997): envíos courier de hasta 100 USD libres de tributos y hasta 2.000 USD por envío. Las exoneraciones del Decreto 5.197 (2026) para códigos específicos no se aplican en esta app.
+                </Text>
             </Card>
 
             <Card variant="flat">

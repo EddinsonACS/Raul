@@ -1,4 +1,5 @@
-import type { TaxSettings } from '@/types/rates';
+import type { TransportMode } from '@/types/operation';
+import type { CategoryInput, TaxSettings } from '@/types/rates';
 
 export type OperationForm = {
     description: string;
@@ -10,7 +11,7 @@ export type OperationForm = {
 
 export type OperationErrors = Partial<Record<'description' | 'categoryId' | 'value' | 'freight' | 'insurance', string>>;
 export type SettingsErrors = Partial<Record<keyof TaxSettings, string>>;
-export type CategoryErrors = Partial<Record<'name' | 'tariffRate', string>>;
+export type CategoryErrors = Partial<Record<'name' | 'tariffRate' | TransportMode, string>>;
 
 const INVALID_AMOUNT = 'Escribe un monto válido.';
 const INVALID_PERCENT = 'Debe estar entre 0 y 100.';
@@ -31,6 +32,7 @@ export function validateOperation(form: OperationForm): OperationErrors {
 export function validateSettings(settings: TaxSettings): SettingsErrors {
     const errors: SettingsErrors = {};
     if (!isPercent(settings.vatRate)) errors.vatRate = INVALID_PERCENT;
+    if (!isPercent(settings.customsFeeRate)) errors.customsFeeRate = INVALID_PERCENT;
     if (!isAmount(settings.exemptMinimum)) errors.exemptMinimum = INVALID_AMOUNT;
     if (!isAmount(settings.exportFee)) errors.exportFee = INVALID_AMOUNT;
     if (!(Number.isFinite(settings.exchangeRate) && settings.exchangeRate > 0)) {
@@ -39,9 +41,13 @@ export function validateSettings(settings: TaxSettings): SettingsErrors {
     return errors;
 }
 
-export function validateCategory(form: { name: string; tariffRate: number }): CategoryErrors {
+/** Valida nombre y aranceles; los aranceles por transporte solo se revisan si vienen definidos. */
+export function validateCategory(form: CategoryInput): CategoryErrors {
     const errors: CategoryErrors = {};
     if (form.name.trim() === '') errors.name = 'Escribe un nombre.';
     if (!isPercent(form.tariffRate)) errors.tariffRate = INVALID_PERCENT;
+    for (const [mode, rate] of Object.entries(form.tariffByMode ?? {}) as [TransportMode, number][]) {
+        if (!isPercent(rate)) errors[mode] = INVALID_PERCENT;
+    }
     return errors;
 }

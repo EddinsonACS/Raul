@@ -1,8 +1,11 @@
 import type { Category, TaxSettings } from '@/types/rates';
 
+// Valores de referencia para Venezuela: IVA 16 %, tasa por servicios de aduana 1 % del valor en aduana
+// y envios courier de hasta 100 USD libres de tributos (Resolucion 3.283, G.O. 36.127 de 1997).
 export const DEFAULT_SETTINGS: TaxSettings = {
     vatRate: 16,
-    exemptMinimum: 200,
+    exemptMinimum: 100,
+    customsFeeRate: 1,
     exportFee: 10,
     exchangeRate: 900,
 };

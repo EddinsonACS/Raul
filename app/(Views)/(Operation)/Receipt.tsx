@@ -7,7 +7,7 @@ import { OperationMissing } from '@/components/Shared/Feedback/OperationMissing'
 import { Card } from '@/components/Shared/Ui/Card';
 import { Icon } from '@/components/Shared/Ui/Icon';
 import { StatusBadge } from '@/components/Shared/Ui/StatusBadge';
-import { TYPE_LABELS } from '@/constants/labels';
+import { TRANSPORT_LABELS, TYPE_LABELS } from '@/constants/labels';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import { formatDate } from '@/utils/format';
@@ -47,6 +47,7 @@ export default function Receipt() {
                 <View className="gap-2 border-t border-dashed border-borde pt-3">
                     <Line label="Fecha de pago" value={formatDate(operation.paidAt)} />
                     <Line label="Tipo" value={TYPE_LABELS[operation.type]} />
+                    <Line label="Transporte" value={TRANSPORT_LABELS[operation.transport]} />
                     <Line label="Descripción" value={operation.description} />
                     <Line label="Categoría" value={categoryName} />
                 </View>

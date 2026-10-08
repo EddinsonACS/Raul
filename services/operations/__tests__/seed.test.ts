@@ -1,6 +1,7 @@
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from '@/constants/defaults';
 import { buildSeedOperations } from '@/services/operations/seed';
 import { calculateTaxes } from '@/services/taxes/calculateTaxes';
+import { tariffRateFor } from '@/services/taxes/tariff';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 
 const NOW = new Date(2026, 9, 8, 15, 30);
@@ -12,6 +13,7 @@ describe('buildSeedOperations', () => {
         expect(operations.length).toBeGreaterThanOrEqual(10);
         const statuses = new Set(operations.map((o) => o.status));
         expect(statuses).toEqual(new Set(['pending', 'paid', 'released']));
+        expect(new Set(operations.map((o) => o.transport))).toEqual(new Set(['sea', 'air', 'land']));
         for (let i = 1; i < operations.length; i++) {
             expect(operations[i - 1].createdAt >= operations[i].createdAt).toBe(true);
         }
@@ -22,7 +24,7 @@ describe('buildSeedOperations', () => {
         for (const operation of operations) {
             expect(ids.has(operation.categoryId)).toBe(true);
             const category = DEFAULT_CATEGORIES.find((c) => c.id === operation.categoryId)!;
-            expect(operation.breakdown).toEqual(calculateTaxes(operation, category.tariffRate, DEFAULT_SETTINGS));
+            expect(operation.breakdown).toEqual(calculateTaxes(operation, tariffRateFor(category, operation.transport), DEFAULT_SETTINGS));
             expect(operation.exchangeRate).toBe(DEFAULT_SETTINGS.exchangeRate);
         }
     });
@@ -68,7 +70,7 @@ describe('operationsStore.seedIfEmpty', () => {
         const store = useOperationsStore.getState();
         store.seedIfEmpty(NOW);
         const { receiptCounter } = useOperationsStore.getState();
-        const op = store.addOperation({ type: 'import', description: 'Nueva', categoryId: 'cat-libros', value: 50, freight: 5, insurance: 0 }, 0, DEFAULT_SETTINGS);
+        const op = store.addOperation({ type: 'import', transport: 'sea', description: 'Nueva', categoryId: 'cat-libros', value: 50, freight: 5, insurance: 0 }, 0, DEFAULT_SETTINGS);
         store.payOperation(op.id);
         expect(useOperationsStore.getState().operations.find((o) => o.id === op.id)?.receiptNumber).toBe(`ADU-${String(receiptCounter + 1).padStart(6, '0')}`);
     });

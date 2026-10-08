@@ -8,7 +8,7 @@ beforeEach(() => {
 describe('ratesStore', () => {
     it('arranca con las tasas y categorías de ejemplo', () => {
         const { settings, categories } = useRatesStore.getState();
-        expect(settings).toEqual({ vatRate: 16, exemptMinimum: 200, exportFee: 10, exchangeRate: 900 });
+        expect(settings).toEqual({ vatRate: 16, exemptMinimum: 100, customsFeeRate: 1, exportFee: 10, exchangeRate: 900 });
         expect(settings).toEqual(DEFAULT_SETTINGS);
         expect(categories).toEqual(DEFAULT_CATEGORIES);
         expect(categories.map((c) => [c.name, c.tariffRate])).toEqual([
@@ -26,18 +26,26 @@ describe('ratesStore', () => {
         expect(useRatesStore.getState().settings.exchangeRate).toBe(950);
     });
 
-    it('agrega una categoría con el nombre sin espacios sobrantes', () => {
-        useRatesStore.getState().addCategory('  Repuestos ', 12);
+    it('agrega una categoría con el nombre sin espacios sobrantes y sin modos vacíos', () => {
+        useRatesStore.getState().addCategory({ name: '  Repuestos ', tariffRate: 12, tariffByMode: {} });
         const added = useRatesStore.getState().categories.at(-1);
         expect(added?.name).toBe('Repuestos');
         expect(added?.tariffRate).toBe(12);
+        expect(added?.tariffByMode).toBeUndefined();
         expect(added?.id).toBeTruthy();
         expect(useRatesStore.getState().categories).toHaveLength(7);
     });
 
-    it('edita una categoría existente', () => {
+    it('guarda aranceles distintos por transporte', () => {
+        useRatesStore.getState().addCategory({ name: 'Perecederos', tariffRate: 10, tariffByMode: { air: 15, sea: undefined } });
+        expect(useRatesStore.getState().categories.at(-1)?.tariffByMode).toEqual({ air: 15 });
+    });
+
+    it('edita una categoría existente y puede quitar los aranceles por transporte', () => {
         const target = useRatesStore.getState().categories[0];
-        useRatesStore.getState().updateCategory(target.id, 'Ropa', 25);
+        useRatesStore.getState().updateCategory(target.id, { name: 'Ropa', tariffRate: 25, tariffByMode: { land: 30 } });
+        expect(useRatesStore.getState().categories[0]).toEqual({ id: target.id, name: 'Ropa', tariffRate: 25, tariffByMode: { land: 30 } });
+        useRatesStore.getState().updateCategory(target.id, { name: 'Ropa', tariffRate: 25 });
         expect(useRatesStore.getState().categories[0]).toEqual({ id: target.id, name: 'Ropa', tariffRate: 25 });
     });
 

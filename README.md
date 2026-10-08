@@ -25,21 +25,22 @@ npx tsc --noEmit  # tipos
 | Pestaña | Contenido |
 |---|---|
 | Inicio | Tasa del día, indicadores, accesos rápidos y últimas operaciones. Engranaje → Ajustes. |
-| Cotizar | Calculadora con desglose en vivo y tooltips. "Registrar" abre una hoja que pide la descripción y lleva al pago. |
+| Cotizar | Tipo, transporte (marítimo/aéreo/terrestre), categoría y montos con desglose en vivo y tooltips. "Registrar" abre una hoja que pide la descripción y lleva al pago. |
 | Categorías | Buscador y lista de aranceles. Tocar una abre la hoja para editar o eliminar; **+** para crear. |
-| Historial | Buscador, filtros por estado y detalle de cada operación. |
+| Historial | Buscador, filtros por estado, tipo y transporte, y detalle de cada operación. |
 
 ## Cómo se calcula
 
-Importación:
+Importación (normativa venezolana):
 
-1. Valor en aduana = valor + flete + seguro.
-2. Si el valor en aduana no supera el mínimo exento, no paga arancel.
-3. Arancel = valor en aduana × tasa de la categoría.
-4. IVA = (valor en aduana + arancel) × tasa de IVA.
-5. Total = arancel + IVA.
+1. Valor en aduana (CIF) = producto + flete + seguro.
+2. Si el producto no supera el mínimo exento (100 USD, Res. 3.283/1997), no paga nada.
+3. Arancel = valor en aduana × tasa de la categoría (o la del transporte, si la categoría lo distingue).
+4. Tasa por servicios de aduana = valor en aduana × 1 %.
+5. IVA = (valor en aduana + arancel + tasa) × 16 %.
+6. Total = arancel + tasa + IVA.
 
-Exportación: paga solo una tasa fija de trámite.
+Exportación: arancel 0, IVA 0 %; paga solo una tasa fija de trámite.
 
 Los bolívares se obtienen multiplicando cada monto en dólares por la tasa del
 día. Las tasas se editan en Ajustes y los aranceles en Categorías.

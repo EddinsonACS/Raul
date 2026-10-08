@@ -12,29 +12,35 @@ export function toMoney(usd: number, exchangeRate: number): Money {
     return { usd: rounded, bs: roundMoney(rounded * exchangeRate) };
 }
 
+/**
+ * Importacion: valor en aduana (CIF) = producto + flete + seguro. Si el producto no supera el minimo
+ * exento no paga nada. Si lo supera: arancel = CIF x tasa de la categoria; tasa aduanera = CIF x 1 %;
+ * IVA = (CIF + arancel + tasa) x 16 %. Exportacion: solo la tasa fija de tramite.
+ */
 export function calculateTaxes(amounts: TaxableAmounts, tariffRate: number, settings: TaxSettings): TaxBreakdown {
     const { exchangeRate } = settings;
     const customsUsd = roundMoney(amounts.value + amounts.freight + amounts.insurance);
+    const zero = toMoney(0, exchangeRate);
+    const customsValue = toMoney(customsUsd, exchangeRate);
 
     if (amounts.type === 'export') {
-        return {
-            customsValue: toMoney(customsUsd, exchangeRate),
-            tariff: toMoney(0, exchangeRate),
-            vat: toMoney(0, exchangeRate),
-            total: toMoney(settings.exportFee, exchangeRate),
-            tariffExempt: false,
-        };
+        return { customsValue, tariff: zero, customsFee: zero, vat: zero, total: toMoney(settings.exportFee, exchangeRate), exempt: false };
     }
 
-    const tariffExempt = customsUsd <= settings.exemptMinimum;
-    const tariffUsd = tariffExempt ? 0 : roundMoney((customsUsd * tariffRate) / 100);
-    const vatUsd = roundMoney(((customsUsd + tariffUsd) * settings.vatRate) / 100);
+    if (amounts.value <= settings.exemptMinimum) {
+        return { customsValue, tariff: zero, customsFee: zero, vat: zero, total: zero, exempt: true };
+    }
+
+    const tariffUsd = roundMoney((customsUsd * tariffRate) / 100);
+    const feeUsd = roundMoney((customsUsd * settings.customsFeeRate) / 100);
+    const vatUsd = roundMoney(((customsUsd + tariffUsd + feeUsd) * settings.vatRate) / 100);
 
     return {
-        customsValue: toMoney(customsUsd, exchangeRate),
+        customsValue,
         tariff: toMoney(tariffUsd, exchangeRate),
+        customsFee: toMoney(feeUsd, exchangeRate),
         vat: toMoney(vatUsd, exchangeRate),
-        total: toMoney(tariffUsd + vatUsd, exchangeRate),
-        tariffExempt,
+        total: toMoney(tariffUsd + feeUsd + vatUsd, exchangeRate),
+        exempt: false,
     };
 }

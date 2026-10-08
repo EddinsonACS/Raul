@@ -1,5 +1,7 @@
 export type OperationType = 'import' | 'export';
 
+export type TransportMode = 'sea' | 'air' | 'land';
+
 export type OperationStatus = 'pending' | 'paid' | 'released';
 
 export type Money = {
@@ -10,14 +12,16 @@ export type Money = {
 export type TaxBreakdown = {
     customsValue: Money;
     tariff: Money;
+    customsFee: Money;
     vat: Money;
     total: Money;
-    /** true cuando una importación no paga arancel por estar bajo el mínimo exento. */
-    tariffExempt: boolean;
+    /** true cuando la importacion no paga ningun tributo por no superar el minimo exento. */
+    exempt: boolean;
 };
 
 export type OperationInput = {
     type: OperationType;
+    transport: TransportMode;
     description: string;
     categoryId: string;
     value: number;

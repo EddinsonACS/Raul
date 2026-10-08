@@ -3,7 +3,7 @@ import { collectedByDay, pendingBars } from '@/services/operations/charts';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import type { Operation } from '@/types/operation';
 
-const INPUT = { type: 'import' as const, categoryId: 'cat-electronica', value: 300, freight: 30, insurance: 10 };
+const INPUT = { type: 'import' as const, transport: 'sea' as const, categoryId: 'cat-electronica', value: 300, freight: 30, insurance: 10 };
 
 function seed(): Operation[] {
     useOperationsStore.setState(useOperationsStore.getInitialState(), true);
@@ -22,7 +22,7 @@ describe('collectedByDay', () => {
         const days = collectedByDay(operations, 7, now);
         expect(days).toHaveLength(7);
         expect(days.slice(0, 6).every((day) => day.usd === 0)).toBe(true);
-        expect(days[6].usd).toBe(74.12);
+        expect(days[6].usd).toBe(78.06);
         expect(days[6].label).toHaveLength(2);
     });
 
@@ -30,7 +30,7 @@ describe('collectedByDay', () => {
         const operations = seed();
         const twice = operations.map((operation) => (operation.status === 'paid' ? { ...operation, id: 'copy' } : operation));
         const days = collectedByDay([...operations, ...twice], 7, new Date());
-        expect(days[6].usd).toBe(148.24);
+        expect(days[6].usd).toBe(156.12);
     });
 
     it('sin operaciones devuelve ceros', () => {

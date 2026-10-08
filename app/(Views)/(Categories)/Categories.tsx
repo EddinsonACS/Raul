@@ -8,7 +8,7 @@ import { SearchBar } from '@/components/Shared/Forms/SearchBar';
 import { toast } from '@/services/toast/toast';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
-import type { Category } from '@/types/rates';
+import type { Category, CategoryInput } from '@/types/rates';
 import { matchesQuery } from '@/utils/text';
 
 type SheetState = { open: boolean; category: Category | null };
@@ -28,9 +28,9 @@ export default function Categories() {
 
     const closeSheet = () => setSheet((current) => ({ ...current, open: false }));
 
-    const save = (name: string, tariffRate: number) => {
-        if (sheet.category) updateCategory(sheet.category.id, name, tariffRate);
-        else addCategory(name, tariffRate);
+    const save = (input: CategoryInput) => {
+        if (sheet.category) updateCategory(sheet.category.id, input);
+        else addCategory(input);
         setPendingToast(sheet.category ? 'Categoría actualizada' : 'Categoría agregada');
         closeSheet();
     };
