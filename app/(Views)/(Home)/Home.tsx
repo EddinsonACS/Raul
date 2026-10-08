@@ -8,6 +8,7 @@ import { summarizeOperations } from '@/services/operations/summary';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import { formatBs } from '@/utils/format';
+import { goToTab } from '@/utils/navigation';
 
 export default function Home() {
     const router = useRouter();
@@ -32,8 +33,8 @@ export default function Home() {
                 <MoneyRow label="Total pagado" amount={collected} strong />
             </Card>
 
-            <Button label="Nueva operación" onPress={() => router.replace('/NewOperation')} />
-            <Button label="Ver historial" variant="secondary" onPress={() => router.replace('/History')} />
+            <Button label="Nueva operación" onPress={() => goToTab(router, '/NewOperation')} />
+            <Button label="Ver historial" variant="secondary" onPress={() => goToTab(router, '/History')} />
         </Screen>
     );
 }

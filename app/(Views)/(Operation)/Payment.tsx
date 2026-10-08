@@ -8,6 +8,7 @@ import { Screen } from '@/components/Shared/Screen';
 import { TYPE_LABELS } from '@/constants/labels';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { formatBs, formatUsd } from '@/utils/format';
+import { goToTab } from '@/utils/navigation';
 
 export default function Payment() {
     const router = useRouter();
@@ -23,7 +24,7 @@ export default function Payment() {
     };
 
     return (
-        <Screen title="Pago" onBack={() => router.back()}>
+        <Screen title="Pago" onBack={() => (router.canGoBack() ? router.back() : goToTab(router, '/History'))}>
             <Card>
                 <Text className="text-sm text-texto2">{TYPE_LABELS[operation.type]}</Text>
                 <Text className="text-lg font-bold text-texto1">{operation.description}</Text>
@@ -38,7 +39,7 @@ export default function Payment() {
                         label={`Pagar ${formatUsd(operation.breakdown.total.usd)} · ${formatBs(operation.breakdown.total.bs)}`}
                         onPress={pay}
                     />
-                    <Button label="Pagar después" variant="secondary" onPress={() => router.replace('/History')} />
+                    <Button label="Pagar después" variant="secondary" onPress={() => goToTab(router, '/History')} />
                 </>
             ) : (
                 <>

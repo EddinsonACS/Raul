@@ -4,12 +4,14 @@ import { BreakdownCard } from '@/components/(Views)/Operation/BreakdownCard';
 import { OperationMissing } from '@/components/(Views)/Operation/OperationMissing';
 import { Button } from '@/components/Shared/Button';
 import { Card } from '@/components/Shared/Card';
+import { MoneyRow } from '@/components/Shared/MoneyRow';
 import { Screen } from '@/components/Shared/Screen';
 import { StatusBadge } from '@/components/Shared/StatusBadge';
 import { TYPE_LABELS } from '@/constants/labels';
+import { toMoney } from '@/services/taxes/calculateTaxes';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
-import { formatDate, formatUsd } from '@/utils/format';
+import { formatDate } from '@/utils/format';
 
 function Line({ label, value }: { label: string; value: string }) {
     return (
@@ -54,9 +56,9 @@ export default function OperationDetail() {
                 <Line label="Tipo" value={TYPE_LABELS[operation.type]} />
                 <Line label="Categoría" value={categoryName} />
                 <Line label="Registrada" value={formatDate(operation.createdAt)} />
-                <Line label="Valor" value={formatUsd(operation.value)} />
-                <Line label="Flete" value={formatUsd(operation.freight)} />
-                <Line label="Seguro" value={formatUsd(operation.insurance)} />
+                <MoneyRow label="Valor" amount={toMoney(operation.value, operation.exchangeRate)} />
+                <MoneyRow label="Flete" amount={toMoney(operation.freight, operation.exchangeRate)} />
+                <MoneyRow label="Seguro" amount={toMoney(operation.insurance, operation.exchangeRate)} />
                 {operation.receiptNumber ? <Line label="Comprobante" value={operation.receiptNumber} /> : null}
             </Card>
 

@@ -7,7 +7,7 @@ export function roundMoney(n: number): number {
     return Math.round((n + Number.EPSILON) * 100) / 100;
 }
 
-function toMoney(usd: number, exchangeRate: number): Money {
+export function toMoney(usd: number, exchangeRate: number): Money {
     const rounded = roundMoney(usd);
     return { usd: rounded, bs: roundMoney(rounded * exchangeRate) };
 }

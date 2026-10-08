@@ -5,6 +5,7 @@ import { Button } from '@/components/Shared/Button';
 import { Screen } from '@/components/Shared/Screen';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
+import { goToTab } from '@/utils/navigation';
 
 export default function History() {
     const router = useRouter();
@@ -18,7 +19,7 @@ export default function History() {
             {operations.length === 0 ? (
                 <>
                     <Text className="text-base text-texto2">Todavía no hay operaciones registradas.</Text>
-                    <Button label="Nueva operación" onPress={() => router.replace('/NewOperation')} />
+                    <Button label="Nueva operación" onPress={() => goToTab(router, '/NewOperation')} />
                 </>
             ) : (
                 operations.map((operation) => (

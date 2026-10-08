@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { BreakdownCard } from '@/components/(Views)/Operation/BreakdownCard';
 import { Button } from '@/components/Shared/Button';
@@ -28,6 +28,7 @@ export default function NewOperation() {
     const [freight, setFreight] = useState('');
     const [insurance, setInsurance] = useState('');
     const [attempted, setAttempted] = useState(false);
+    const savedRef = useRef(false);
 
     const category = categories.find((item) => item.id === categoryId) ?? null;
     const amounts = {
@@ -43,13 +44,14 @@ export default function NewOperation() {
 
     const save = () => {
         setAttempted(true);
-        if (hasErrors || !category) return;
+        if (hasErrors || !category || savedRef.current) return;
+        savedRef.current = true;
         const operation = addOperation(
             { type, description: description.trim(), categoryId: category.id, ...amounts },
             category.tariffRate,
             settings
         );
-        router.push({ pathname: '/Payment', params: { id: operation.id } });
+        router.replace({ pathname: '/Payment', params: { id: operation.id } });
     };
 
     return (

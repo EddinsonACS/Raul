@@ -10,6 +10,7 @@ import { TYPE_LABELS } from '@/constants/labels';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import { formatDate } from '@/utils/format';
+import { goToTab } from '@/utils/navigation';
 
 function Line({ label, value }: { label: string; value: string }) {
     return (
@@ -44,8 +45,8 @@ export default function Receipt() {
 
             <BreakdownCard type={operation.type} breakdown={operation.breakdown} exchangeRate={operation.exchangeRate} />
 
-            <Button label="Ir al historial" onPress={() => router.replace('/History')} />
-            <Button label="Nueva operación" variant="secondary" onPress={() => router.replace('/NewOperation')} />
+            <Button label="Ir al historial" onPress={() => goToTab(router, '/History')} />
+            <Button label="Nueva operación" variant="secondary" onPress={() => goToTab(router, '/NewOperation')} />
         </Screen>
     );
 }

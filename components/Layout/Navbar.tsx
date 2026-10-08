@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { usePathname, useRouter } from 'expo-router';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { goToTab } from '@/utils/navigation';
 
 type Tab = {
     href: string;
@@ -22,11 +23,6 @@ export function Navbar() {
     const pathname = usePathname();
     const insets = useSafeAreaInsets();
 
-    const goTo = (href: string) => {
-        if (router.canDismiss()) router.dismissAll();
-        router.replace(href);
-    };
-
     return (
         <View
             style={{ paddingBottom: Math.max(insets.bottom, 8) }}
@@ -38,7 +34,7 @@ export function Navbar() {
                 return (
                     <Pressable
                         key={tab.href}
-                        onPress={() => goTo(tab.href)}
+                        onPress={() => goToTab(router, tab.href, pathname)}
                         accessibilityRole="button"
                         accessibilityLabel={tab.label}
                         className="flex-1 items-center gap-1"

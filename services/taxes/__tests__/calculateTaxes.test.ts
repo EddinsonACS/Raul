@@ -1,4 +1,4 @@
-import { calculateTaxes, roundMoney } from '@/services/taxes/calculateTaxes';
+import { calculateTaxes, roundMoney, toMoney } from '@/services/taxes/calculateTaxes';
 import type { TaxSettings } from '@/types/rates';
 
 const SETTINGS: TaxSettings = { vatRate: 16, exemptMinimum: 200, exportFee: 10, exchangeRate: 900 };
@@ -89,5 +89,12 @@ describe('roundMoney', () => {
     it('redondea a dos decimales', () => {
         expect(roundMoney(4.9995)).toBe(5);
         expect(roundMoney(6.1328)).toBe(6.13);
+    });
+});
+
+describe('toMoney', () => {
+    it('convierte un monto en USD a ambas monedas', () => {
+        expect(toMoney(300, 900)).toEqual({ usd: 300, bs: 270000 });
+        expect(toMoney(33.33, 40.25)).toEqual({ usd: 33.33, bs: 1341.53 });
     });
 });
