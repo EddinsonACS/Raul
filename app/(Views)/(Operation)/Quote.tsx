@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { BreakdownCard } from '@/components/(Views)/Operation/BreakdownCard';
 import { Button } from '@/components/Shared/Button';
+import { Card } from '@/components/Shared/Card';
 import { Field } from '@/components/Shared/Field';
 import { Screen } from '@/components/Shared/Screen';
 import { TYPE_LABELS } from '@/constants/labels';
@@ -15,7 +16,7 @@ import { validateOperation } from '@/utils/validation';
 
 const TYPES: OperationType[] = ['import', 'export'];
 
-export default function NewOperation() {
+export default function Quote() {
     const router = useRouter();
     const categories = useRatesStore((state) => state.categories);
     const settings = useRatesStore((state) => state.settings);
@@ -55,7 +56,7 @@ export default function NewOperation() {
     };
 
     return (
-        <Screen title="Nueva operación">
+        <Screen title="Cotización">
             <View className="flex-row gap-2">
                 {TYPES.map((option) => {
                     const active = option === type;
@@ -74,14 +75,6 @@ export default function NewOperation() {
                     );
                 })}
             </View>
-
-            <Field
-                label="Descripción"
-                value={description}
-                onChangeText={setDescription}
-                placeholder="Ej. Teléfono celular"
-                error={shown.description}
-            />
 
             <View className="gap-1">
                 <Text className="text-sm font-medium text-texto1">Categoría</Text>
@@ -116,7 +109,18 @@ export default function NewOperation() {
                 <Text className="text-sm text-texto2">Elige una categoría y escribe el valor para ver el cálculo.</Text>
             )}
 
-            <Button label="Guardar y continuar al pago" onPress={save} disabled={attempted && hasErrors} />
+            <Card>
+                <Text className="text-base font-bold text-texto1">Registrar esta cotización</Text>
+                <Text className="text-sm text-texto2">La cotización no se guarda hasta que la registres.</Text>
+                <Field
+                    label="Descripción"
+                    value={description}
+                    onChangeText={setDescription}
+                    placeholder="Ej. Teléfono celular"
+                    error={shown.description}
+                />
+                <Button label="Registrar operación" onPress={save} disabled={attempted && hasErrors} />
+            </Card>
         </Screen>
     );
 }

@@ -32,4 +32,4 @@ Importación:
 Exportación: paga solo una tasa fija de trámite.
 
 Los bolívares se obtienen multiplicando cada monto en dólares por la tasa del
-día. Las tasas se editan en la pestaña Admin.
+día. Las tasas se editan en la pestaña Ajustes y los aranceles en Categorías.

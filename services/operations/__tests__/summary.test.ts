@@ -18,12 +18,20 @@ beforeEach(() => {
 
 describe('summarizeOperations', () => {
     it('devuelve ceros sin operaciones', () => {
-        expect(summarizeOperations([])).toEqual({ pendingCount: 0, collected: { usd: 0, bs: 0 } });
+        expect(summarizeOperations([])).toEqual({
+            totalCount: 0,
+            importCount: 0,
+            exportCount: 0,
+            pendingCount: 0,
+            receivable: { usd: 0, bs: 0 },
+            collected: { usd: 0, bs: 0 },
+        });
     });
 
-    it('cuenta pendientes y suma lo pagado y lo liberado', () => {
+    it('separa lo cobrado de lo que falta por cobrar y cuenta por tipo', () => {
         const store = useOperationsStore.getState();
         store.addOperation(INPUT, 5, DEFAULT_SETTINGS);
+        store.addOperation({ ...INPUT, type: 'export' }, 5, DEFAULT_SETTINGS);
         const paid = store.addOperation(INPUT, 5, DEFAULT_SETTINGS);
         const released = store.addOperation(INPUT, 5, DEFAULT_SETTINGS);
         store.payOperation(paid.id);
@@ -31,7 +39,11 @@ describe('summarizeOperations', () => {
         store.releaseOperation(released.id);
 
         expect(summarizeOperations(useOperationsStore.getState().operations)).toEqual({
-            pendingCount: 1,
+            totalCount: 4,
+            importCount: 3,
+            exportCount: 1,
+            pendingCount: 2,
+            receivable: { usd: 84.12, bs: 75708 },
             collected: { usd: 148.24, bs: 133416 },
         });
     });

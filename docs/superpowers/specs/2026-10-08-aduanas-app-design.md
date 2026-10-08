@@ -37,22 +37,23 @@ nativas, para que corra en Expo Go.
 
 ## Pantallas
 
-Cuatro pestañas inferiores:
+Cinco pestañas inferiores:
 
 | Pestaña | Contenido |
 |---|---|
-| Inicio | Tasa del día, cantidad de operaciones pendientes, total pagado y botón "Nueva operación". |
-| Nueva operación | Formulario y desglose del cálculo en vivo. |
+| Inicio | Tablero: tasa del día, recaudado, por cobrar, pendientes, total de operaciones y las tres últimas. |
+| Cotizar | Calculadora con desglose en vivo. La cotización solo se guarda al registrarla como operación. |
 | Historial | Lista de operaciones con estado; al tocar una se abre su detalle. |
-| Administración | Tasa del día, IVA, mínimo exento, tasa de trámite, categorías y total recaudado. |
+| Categorías | Aranceles por categoría: agregar, editar y eliminar (con confirmación). |
+| Ajustes | Tipo de cambio, impuestos de importación (IVA y mínimo exento) y trámite de exportación. |
 
 Pantallas fuera de las pestañas: Pago, Comprobante y Detalle de operación.
 
 ### Flujo de una operación
 
-1. El usuario llena el formulario: tipo, descripción, categoría, valor, flete y seguro (montos en USD).
-2. El desglose se actualiza mientras escribe, en USD y en Bs.
-3. Al guardar, la operación queda **pendiente**.
+1. El usuario cotiza: tipo, categoría, valor, flete y seguro (montos en USD).
+2. El desglose se actualiza mientras escribe, en USD y en Bs. Nada se guarda todavía.
+3. Al escribir la descripción y registrar, la operación queda **pendiente**.
 4. En Pago confirma el cobro simulado; la operación pasa a **pagada** y recibe número de comprobante.
 5. Desde el detalle, "Liberar mercancía" la pasa a **liberada**.
 
@@ -93,7 +94,7 @@ partir del monto en USD ya redondeado y se redondea a dos decimales.
 
 - Los montos se ingresan en USD.
 - Todo monto se muestra en ambas monedas: `$74.12` y `Bs 66.708,00`.
-- La tasa del día (Bs por 1 USD) se edita en Administración y se ve en Inicio.
+- La tasa del día (Bs por 1 USD) se edita en Ajustes y se ve en Inicio.
 - Cada operación guarda la tasa con la que se calculó. Cambiar la tasa del día
   no altera las operaciones ya registradas.
 

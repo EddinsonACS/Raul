@@ -13,9 +13,10 @@ type Tab = {
 
 const TABS: Tab[] = [
     { href: '/Home', label: 'Inicio', icon: 'home-outline', routes: ['/Home'] },
-    { href: '/NewOperation', label: 'Nueva', icon: 'add-circle-outline', routes: ['/NewOperation', '/Payment', '/Receipt'] },
+    { href: '/Quote', label: 'Cotizar', icon: 'calculator-outline', routes: ['/Quote', '/Payment', '/Receipt'] },
     { href: '/History', label: 'Historial', icon: 'list-outline', routes: ['/History', '/OperationDetail'] },
-    { href: '/Admin', label: 'Admin', icon: 'settings-outline', routes: ['/Admin'] },
+    { href: '/Categories', label: 'Categorías', icon: 'pricetags-outline', routes: ['/Categories'] },
+    { href: '/Settings', label: 'Ajustes', icon: 'settings-outline', routes: ['/Settings'] },
 ];
 
 export function Navbar() {
@@ -39,8 +40,8 @@ export function Navbar() {
                         accessibilityLabel={tab.label}
                         className="flex-1 items-center gap-1"
                     >
-                        <Ionicons name={tab.icon} size={24} color={color} />
-                        <Text style={{ color }} className="text-xs font-medium">
+                        <Ionicons name={tab.icon} size={22} color={color} />
+                        <Text style={{ color }} className="text-[11px] font-medium" numberOfLines={1}>
                             {tab.label}
                         </Text>
                     </Pressable>

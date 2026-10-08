@@ -46,7 +46,7 @@ export default function Receipt() {
             <BreakdownCard type={operation.type} breakdown={operation.breakdown} exchangeRate={operation.exchangeRate} />
 
             <Button label="Ir al historial" onPress={() => goToTab(router, '/History')} />
-            <Button label="Nueva operación" variant="secondary" onPress={() => goToTab(router, '/NewOperation')} />
+            <Button label="Nueva cotización" variant="secondary" onPress={() => goToTab(router, '/Quote')} />
         </Screen>
     );
 }

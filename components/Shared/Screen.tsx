@@ -7,9 +7,10 @@ type ScreenProps = {
     title: string;
     children: ReactNode;
     onBack?: () => void;
+    icon?: keyof typeof Ionicons.glyphMap;
 };
 
-export function Screen({ title, children, onBack }: ScreenProps) {
+export function Screen({ title, children, onBack, icon }: ScreenProps) {
     const insets = useSafeAreaInsets();
 
     return (
@@ -25,6 +26,11 @@ export function Screen({ title, children, onBack }: ScreenProps) {
                     <Pressable onPress={onBack} hitSlop={12} accessibilityRole="button" accessibilityLabel="Volver">
                         <Ionicons name="chevron-back" size={24} color="#111827" />
                     </Pressable>
+                )}
+                {icon && (
+                    <View className="h-8 w-8 items-center justify-center rounded-lg bg-primario">
+                        <Ionicons name={icon} size={18} color="#FFFFFF" />
+                    </View>
                 )}
                 <Text className="text-xl font-bold text-texto1">{title}</Text>
             </View>

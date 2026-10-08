@@ -19,7 +19,7 @@ export default function History() {
             {operations.length === 0 ? (
                 <>
                     <Text className="text-base text-texto2">Todavía no hay operaciones registradas.</Text>
-                    <Button label="Nueva operación" onPress={() => goToTab(router, '/NewOperation')} />
+                    <Button label="Nueva cotización" onPress={() => goToTab(router, '/Quote')} />
                 </>
             ) : (
                 operations.map((operation) => (

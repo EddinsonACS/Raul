@@ -2,21 +2,36 @@ import { roundMoney } from '@/services/taxes/calculateTaxes';
 import type { Money, Operation } from '@/types/operation';
 
 export type OperationsSummary = {
+    totalCount: number;
+    importCount: number;
+    exportCount: number;
     pendingCount: number;
+    /** Suma de las operaciones pendientes de pago. */
+    receivable: Money;
+    /** Suma de las operaciones pagadas y liberadas. */
     collected: Money;
 };
 
 export function summarizeOperations(operations: Operation[]): OperationsSummary {
+    let importCount = 0;
     let pendingCount = 0;
-    let usd = 0;
-    let bs = 0;
+    const receivable = { usd: 0, bs: 0 };
+    const collected = { usd: 0, bs: 0 };
+
     for (const operation of operations) {
-        if (operation.status === 'pending') {
-            pendingCount += 1;
-        } else {
-            usd += operation.breakdown.total.usd;
-            bs += operation.breakdown.total.bs;
-        }
+        if (operation.type === 'import') importCount += 1;
+        const bucket = operation.status === 'pending' ? receivable : collected;
+        if (operation.status === 'pending') pendingCount += 1;
+        bucket.usd += operation.breakdown.total.usd;
+        bucket.bs += operation.breakdown.total.bs;
     }
-    return { pendingCount, collected: { usd: roundMoney(usd), bs: roundMoney(bs) } };
+
+    return {
+        totalCount: operations.length,
+        importCount,
+        exportCount: operations.length - importCount,
+        pendingCount,
+        receivable: { usd: roundMoney(receivable.usd), bs: roundMoney(receivable.bs) },
+        collected: { usd: roundMoney(collected.usd), bs: roundMoney(collected.bs) },
+    };
 }
