@@ -103,7 +103,7 @@ export function BottomSheetModal({ visible, onClose, title, children, onClosed }
 
     return (
         <Modal visible transparent statusBarTranslucent animationType="none" onRequestClose={onClose}>
-            <GestureHandlerRootView style={{ flex: 1 }} className="justify-end">
+            <GestureHandlerRootView style={{ flex: 1, justifyContent: 'flex-end' }}>
                 <Pressable className="absolute inset-0" onPress={onBackdropPress} accessibilityLabel="Cerrar">
                     <Animated.View className="flex-1 bg-velo/60" style={overlayStyle} />
                 </Pressable>
