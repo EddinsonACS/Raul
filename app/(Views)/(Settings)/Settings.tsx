@@ -46,6 +46,15 @@ function Step({ number, text }: { number: number; text: string }) {
     );
 }
 
+function LegalItem({ title, text }: { title: string; text: string }) {
+    return (
+        <View className="gap-0.5 border-l-2 border-primario/40 pl-3">
+            <Text className="text-sm font-semibold text-texto1">{title}</Text>
+            <Text className="text-justify text-xs leading-4 text-texto2">{text}</Text>
+        </View>
+    );
+}
+
 function Formula({ children }: { children: string }) {
     return (
         <View className="rounded-xl bg-fondo3 px-3 py-2">
@@ -169,9 +178,26 @@ export default function Settings() {
 
             <Card variant="flat">
                 <SectionTitle>Base legal (Venezuela)</SectionTitle>
-                <Text className="text-justify text-sm leading-5 text-texto2">
-                    Ley Orgánica de Aduanas (G.O. 6.507, 2020) y Arancel de Aduanas (Decreto 4.944 y reformas): arancel ad valorem de 0 % a 35 % según código arancelario y tasa por servicios de aduana del 1 %. Ley del IVA: 16 % sobre el valor en aduana más los tributos de la importación; exportaciones con alícuota 0 %. Resolución 3.283 (G.O. 36.127, 1997): envíos courier de hasta 100 USD libres de tributos y hasta 2.000 USD por envío. Las exoneraciones del Decreto 5.197 (2026) para códigos específicos no se aplican en esta app.
-                </Text>
+                <LegalItem
+                    title="Ley Orgánica de Aduanas (G.O. 6.507, 2020)"
+                    text="Define el valor en aduana (CIF) como base de los tributos y la tasa por servicios de aduana del 1 %."
+                />
+                <LegalItem
+                    title="Arancel de Aduanas (Decreto 4.944 y reformas)"
+                    text="Arancel ad valorem de 0 % a 35 % según el código arancelario de cada producto. Las categorías de la app lo simplifican."
+                />
+                <LegalItem
+                    title="Ley del IVA"
+                    text="Alícuota general de 16 % sobre el valor en aduana más los tributos de la importación. Las exportaciones tienen alícuota 0 %."
+                />
+                <LegalItem
+                    title="Resolución 3.283 (G.O. 36.127, 1997)"
+                    text="Envíos courier de hasta 100 USD libres de gravámenes y tributos; hasta 2.000 USD por envío se nacionalizan por el courier."
+                />
+                <LegalItem
+                    title="Decreto 5.197 (G.O. 6.952, 2025)"
+                    text="Exoneraciones del 90 % de arancel e IVA para códigos arancelarios específicos durante 2026. No se aplican en esta app."
+                />
             </Card>
 
             <Card variant="flat">
