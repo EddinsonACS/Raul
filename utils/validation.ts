@@ -11,7 +11,7 @@ export type OperationForm = {
 
 export type OperationErrors = Partial<Record<'description' | 'categoryId' | 'value' | 'freight' | 'insurance', string>>;
 export type SettingsErrors = Partial<Record<keyof TaxSettings, string>>;
-export type CategoryErrors = Partial<Record<'name' | 'tariffRate' | TransportMode, string>>;
+export type CategoryErrors = Partial<Record<'name' | 'rates' | TransportMode, string>>;
 
 const INVALID_AMOUNT = 'Escribe un monto válido.';
 const INVALID_PERCENT = 'Debe estar entre 0 y 100.';
@@ -41,12 +41,13 @@ export function validateSettings(settings: TaxSettings): SettingsErrors {
     return errors;
 }
 
-/** Valida nombre y aranceles; los aranceles por transporte solo se revisan si vienen definidos. */
+/** Valida nombre y aranceles: cada transporte definido entre 0 y 100, y al menos uno definido. */
 export function validateCategory(form: CategoryInput): CategoryErrors {
     const errors: CategoryErrors = {};
     if (form.name.trim() === '') errors.name = 'Escribe un nombre.';
-    if (!isPercent(form.tariffRate)) errors.tariffRate = INVALID_PERCENT;
-    for (const [mode, rate] of Object.entries(form.tariffByMode ?? {}) as [TransportMode, number][]) {
+    const entries = Object.entries(form.rates) as [TransportMode, number][];
+    if (entries.length === 0) errors.rates = 'Indica el arancel de al menos un transporte.';
+    for (const [mode, rate] of entries) {
         if (!isPercent(rate)) errors[mode] = INVALID_PERCENT;
     }
     return errors;

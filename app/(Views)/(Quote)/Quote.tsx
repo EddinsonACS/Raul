@@ -1,5 +1,5 @@
 import { useRouter } from 'expo-router';
-import { useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { COLORS } from '@/Shared/Global/colors';
 import { BreakdownCard } from '@/components/(Views)/Quote/BreakdownCard';
@@ -15,7 +15,7 @@ import { Icon } from '@/components/Shared/Ui/Icon';
 import { TRANSPORT_ICONS, TRANSPORT_LABELS, TRANSPORT_MODES, TYPE_LABELS } from '@/constants/labels';
 import { toast } from '@/services/toast/toast';
 import { calculateTaxes } from '@/services/taxes/calculateTaxes';
-import { hasModeRates, tariffRateFor } from '@/services/taxes/tariff';
+import { availableModes, isAvailableFor, tariffRateFor } from '@/services/taxes/tariff';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import type { OperationType, TransportMode } from '@/types/operation';
@@ -26,13 +26,11 @@ import { validateOperation } from '@/utils/validation';
 const TYPE_OPTIONS = (['import', 'export'] as OperationType[]).map((key) => ({ key, label: TYPE_LABELS[key] }));
 const TRANSPORT_OPTIONS = TRANSPORT_MODES.map((key) => ({ key, label: TRANSPORT_LABELS[key], icon: TRANSPORT_ICONS[key] }));
 
-/** Texto corto con el arancel de una categoria: "20 %" o "20 % · aéreo 25 %". */
+/** Aranceles de una categoria por transporte: "Marítimo 20 % · Aéreo 25 %". */
 function rateSummary(category: Category): string {
-    if (!hasModeRates(category)) return `Arancel ${category.tariffRate} %`;
-    const modes = TRANSPORT_MODES.filter((mode) => category.tariffByMode?.[mode] !== undefined)
-        .map((mode) => `${TRANSPORT_LABELS[mode].toLowerCase()} ${category.tariffByMode?.[mode]} %`)
+    return availableModes(category)
+        .map((mode) => `${TRANSPORT_LABELS[mode]} ${tariffRateFor(category, mode)} %`)
         .join(' · ');
-    return `Arancel ${category.tariffRate} % · ${modes}`;
 }
 
 export default function Quote() {
@@ -51,8 +49,15 @@ export default function Quote() {
     const [registerOpen, setRegisterOpen] = useState(false);
     const registeredId = useRef<string | null>(null);
 
-    const category = categories.find((item) => item.id === categoryId) ?? null;
-    const tariffRate = category ? tariffRateFor(category, transport) : 0;
+    // Solo se ofrecen las categorias con arancel para el transporte elegido.
+    const available = useMemo(() => categories.filter((item) => isAvailableFor(item, transport)), [categories, transport]);
+    const category = available.find((item) => item.id === categoryId) ?? null;
+    const tariffRate = category ? (tariffRateFor(category, transport) ?? 0) : 0;
+
+    // Si la categoria elegida no admite el nuevo transporte, se deselecciona.
+    useEffect(() => {
+        if (categoryId && !category) setCategoryId(null);
+    }, [categoryId, category]);
     const amounts = { value: parseAmount(value), freight: parseOptionalAmount(freight), insurance: parseOptionalAmount(insurance) };
     // La descripcion se pide al registrar; aqui solo se validan montos y categoria.
     const errors = validateOperation({ description: 'x', categoryId: category?.id ?? null, ...amounts });
@@ -117,9 +122,11 @@ export default function Quote() {
                         </Text>
                         <Icon name="chevron-right" size={18} color={COLORS.texto2} />
                     </Pressable>
-                    {category && hasModeRates(category) ? (
-                        <Text className="text-xs text-texto2">Arancel para transporte {TRANSPORT_LABELS[transport].toLowerCase()}.</Text>
-                    ) : null}
+                    <Text className="text-xs text-texto2">
+                        {available.length === 0
+                            ? `Ninguna categoría tiene arancel para transporte ${TRANSPORT_LABELS[transport].toLowerCase()}.`
+                            : `Arancel para transporte ${TRANSPORT_LABELS[transport].toLowerCase()}.`}
+                    </Text>
                 </View>
                 <FormInput label="Valor del producto" placeholder="0.00" suffix="USD" numeric value={value} onChangeText={setValue} errorMessage={shown.value} />
                 <View className="flex-row gap-3">
@@ -145,10 +152,10 @@ export default function Quote() {
                 onClose={() => setPickerOpen(false)}
                 title="Categoría"
                 searchable
-                options={categories.map((item) => ({ key: item.id, label: item.name, sublabel: rateSummary(item) }))}
+                options={available.map((item) => ({ key: item.id, label: item.name, sublabel: rateSummary(item) }))}
                 selectedKey={categoryId}
                 onSelect={setCategoryId}
-                emptyText="No hay categorías con ese nombre"
+                emptyText={`No hay categorías disponibles para transporte ${TRANSPORT_LABELS[transport].toLowerCase()}`}
             />
             {breakdown && category ? (
                 <RegisterSheet

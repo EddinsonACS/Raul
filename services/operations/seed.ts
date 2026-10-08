@@ -1,5 +1,6 @@
 import { DEFAULT_CATEGORIES, DEFAULT_SETTINGS } from '@/constants/defaults';
 import { calculateTaxes } from '@/services/taxes/calculateTaxes';
+import { tariffRateFor } from '@/services/taxes/tariff';
 import type { Operation, OperationInput, OperationStatus } from '@/types/operation';
 
 type SeedRow = OperationInput & {
@@ -38,10 +39,12 @@ export function buildSeedOperations(now: Date): { operations: Operation[]; recei
     const drafts = ROWS.map((row, index) => {
         const category = DEFAULT_CATEGORIES.find((item) => item.id === row.categoryId);
         if (!category) throw new Error(`Categoría de ejemplo desconocida: ${row.categoryId}`);
+        const tariffRate = tariffRateFor(category, row.transport);
+        if (tariffRate === undefined) throw new Error(`La categoría ${row.categoryId} no admite transporte ${row.transport}`);
         const createdMs = base - row.daysAgo * DAY_MS - (index % 5) * 37 * 60 * 1000;
         const paidMs = row.status === 'pending' ? null : Math.min(createdMs + (row.paidAfterHours ?? 1) * HOUR_MS, now.getTime());
         const { status, daysAgo: _daysAgo, paidAfterHours: _paidAfterHours, ...input } = row;
-        return { input, status, createdMs, paidMs, tariffRate: category.tariffRate, id: `seed-${String(index + 1).padStart(2, '0')}` };
+        return { input, status, createdMs, paidMs, tariffRate, id: `seed-${String(index + 1).padStart(2, '0')}` };
     });
 
     const paidOrder = drafts.filter((draft) => draft.paidMs !== null).sort((a, b) => a.paidMs! - b.paidMs!);

@@ -10,11 +10,12 @@ export const DEFAULT_SETTINGS: TaxSettings = {
     exchangeRate: 900,
 };
 
+// Arancel por transporte; el modo que falta no esta disponible para esa categoria.
 export const DEFAULT_CATEGORIES: Category[] = [
-    { id: 'cat-ropa', name: 'Ropa y calzado', tariffRate: 20 },
-    { id: 'cat-electronica', name: 'Electrónica', tariffRate: 5 },
-    { id: 'cat-libros', name: 'Libros', tariffRate: 0 },
-    { id: 'cat-juguetes', name: 'Juguetes', tariffRate: 15 },
-    { id: 'cat-cosmeticos', name: 'Cosméticos', tariffRate: 15 },
-    { id: 'cat-otros', name: 'Otros', tariffRate: 10 },
+    { id: 'cat-ropa', name: 'Ropa y calzado', rates: { sea: 20, air: 25, land: 20 } },
+    { id: 'cat-electronica', name: 'Electrónica', rates: { sea: 5, air: 8, land: 5 } },
+    { id: 'cat-libros', name: 'Libros', rates: { sea: 0, air: 0, land: 0 } },
+    { id: 'cat-juguetes', name: 'Juguetes', rates: { sea: 15, air: 15 } },
+    { id: 'cat-cosmeticos', name: 'Cosméticos', rates: { sea: 15, air: 18 } },
+    { id: 'cat-otros', name: 'Otros', rates: { sea: 10, air: 12, land: 10 } },
 ];

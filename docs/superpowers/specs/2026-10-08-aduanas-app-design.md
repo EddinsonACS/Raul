@@ -56,7 +56,7 @@ Cuatro pestañas inferiores, en este orden:
 |---|---|
 | Inicio | Tablero: tasa del día en tarjeta con degradado; gráficas de pendientes (anillo), operaciones por tipo y por transporte (barras apiladas), recaudado por día y por cobrar por operación; las tres últimas operaciones. |
 | Cotizar | Tipo, transporte (marítimo / aéreo / terrestre), categoría y montos; desglose en vivo con tooltip en cada término. "Registrar" abre una hoja inferior que pide la descripción. |
-| Categorías | Buscador y lista limpia (nombre y porcentaje, o porcentaje por transporte). Tocar una fila abre una hoja inferior para editar (con interruptor "arancel distinto por transporte") o eliminar con confirmación. Botón **+** en el encabezado para crear. |
+| Categorías | Buscador y lista limpia (nombre y porcentaje, o porcentaje por transporte). Tocar una fila abre una hoja inferior con los tres aranceles (vacío = no disponible, con nota) para editar o eliminar con confirmación. Botón **+** en el encabezado para crear. |
 | Historial | Buscador y filtros por estado, por tipo (importación / exportación) y por transporte. Cada fila lleva el ícono de su transporte. Estado vacío ilustrado. |
 
 **Ajustes** no es pestaña: se abre desde el engranaje a la derecha del
@@ -111,8 +111,8 @@ Los bolívares se obtienen multiplicando cada monto en USD por la tasa del día.
 2. Si el valor del producto es menor o igual al mínimo exento, el envío no
    paga ningún tributo (total 0). Referencia: Resolución 3.283, G.O. 36.127
    (1997): envíos courier de hasta 100 USD libres de gravámenes y tributos.
-3. Arancel = valor en aduana × tasa de la categoría (si la categoría define
-   un arancel por transporte, el del transporte elegido).
+3. Arancel = valor en aduana × arancel de la categoría para el transporte
+   elegido.
 4. Tasa por servicios de aduana = valor en aduana × 1 %.
 5. IVA = (valor en aduana + arancel + tasa aduanera) × 16 %.
 6. Total = arancel + tasa aduanera + IVA.
@@ -137,8 +137,8 @@ partir del monto en USD ya redondeado y se redondea a dos decimales.
 ### Transporte
 
 Cada operación indica cómo llega la mercancía: marítimo, aéreo o terrestre.
-Una categoría tiene un arancel general y, opcionalmente, un arancel distinto
-por transporte. En la ley el arancel depende del producto y no del transporte;
+Cada categoría define su arancel por transporte; el transporte sin arancel
+no se ofrece al cotizar esa categoría. En la ley el arancel depende del producto y no del transporte;
 la opción existe como funcionalidad de la app y el tooltip lo aclara.
 
 ### Base legal consultada
@@ -174,7 +174,7 @@ exoneraciones para códigos específicos, fuera del alcance de la app.
 | createdAt, paidAt | Fechas |
 | receiptNumber | Consecutivo `ADU-000001`, asignado al pagar |
 
-**Categoría**: id, nombre, arancel general (%) y, opcionalmente, arancel por transporte (`tariffByMode`).
+**Categoría**: id, nombre y arancel por transporte (`rates`: marítimo, aéreo, terrestre). Un transporte sin arancel no está disponible para esa categoría al cotizar.
 
 **Configuración**: tasa de IVA (%), tasa por servicios de aduana (%), mínimo
 exento sobre el valor del producto (USD), tasa de trámite de exportación (USD),
@@ -232,7 +232,7 @@ Reglas:
 
 - Valor mayor que cero; flete y seguro mayores o iguales a cero.
 - Descripción y categoría obligatorias.
-- Tasas porcentuales entre 0 y 100, incluidos los aranceles por transporte.
+- Tasas porcentuales entre 0 y 100; una categoría necesita arancel en al menos un transporte.
 - Tasa del día mayor que cero.
 - Mínimo exento y tasa de trámite mayores o iguales a cero.
 - No se puede eliminar una categoría usada por alguna operación.

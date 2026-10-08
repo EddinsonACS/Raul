@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
-import { Switch, Text, View } from 'react-native';
-import { COLORS } from '@/Shared/Global/colors';
+import { Text, View } from 'react-native';
+import { BRAND } from '@/Shared/Global/colors';
 import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
-import { InfoTooltip } from '@/components/Shared/Buttons/InfoTooltip';
 import { FormInput } from '@/components/Shared/Forms/FormInput';
 import { BottomSheetModal } from '@/components/Shared/Modals/BottomSheetModal';
+import { Icon } from '@/components/Shared/Ui/Icon';
 import { TRANSPORT_ICONS, TRANSPORT_LABELS, TRANSPORT_MODES } from '@/constants/labels';
-import { hasModeRates } from '@/services/taxes/tariff';
 import { confirm } from '@/stores/shared/confirmStore';
 import type { TransportMode } from '@/types/operation';
 import type { Category, CategoryInput } from '@/types/rates';
@@ -24,38 +23,32 @@ type CategorySheetProps = {
     onClosed?: () => void;
 };
 
-type ModeFields = Record<TransportMode, string>;
+type RateFields = Record<TransportMode, string>;
 
-const emptyModes = (): ModeFields => ({ sea: '', air: '', land: '' });
+const fieldsFrom = (category: Category | null): RateFields => ({
+    sea: category?.rates.sea?.toString() ?? '',
+    air: category?.rates.air?.toString() ?? '',
+    land: category?.rates.land?.toString() ?? '',
+});
 
 export function CategorySheet({ visible, onClose, category, onSave, onDelete, onClosed }: CategorySheetProps) {
     const [name, setName] = useState('');
-    const [rate, setRate] = useState('');
-    const [byMode, setByMode] = useState(false);
-    const [modes, setModes] = useState<ModeFields>(emptyModes);
+    const [rates, setRates] = useState<RateFields>(() => fieldsFrom(null));
     const [errors, setErrors] = useState<CategoryErrors>({});
     const [deleteError, setDeleteError] = useState('');
 
     useEffect(() => {
         if (!visible) return;
         setName(category?.name ?? '');
-        setRate(category ? String(category.tariffRate) : '');
-        setByMode(category ? hasModeRates(category) : false);
-        setModes({
-            sea: category?.tariffByMode?.sea?.toString() ?? '',
-            air: category?.tariffByMode?.air?.toString() ?? '',
-            land: category?.tariffByMode?.land?.toString() ?? '',
-        });
+        setRates(fieldsFrom(category));
         setErrors({});
         setDeleteError('');
     }, [visible, category]);
 
-    const buildInput = (): CategoryInput => {
-        const tariffByMode = byMode
-            ? Object.fromEntries(TRANSPORT_MODES.filter((mode) => modes[mode].trim() !== '').map((mode) => [mode, parseAmount(modes[mode])]))
-            : undefined;
-        return { name, tariffRate: parseAmount(rate), tariffByMode };
-    };
+    const buildInput = (): CategoryInput => ({
+        name,
+        rates: Object.fromEntries(TRANSPORT_MODES.filter((mode) => rates[mode].trim() !== '').map((mode) => [mode, parseAmount(rates[mode])])),
+    });
 
     const save = () => {
         const input = buildInput();
@@ -81,30 +74,9 @@ export function CategorySheet({ visible, onClose, category, onSave, onDelete, on
         <BottomSheetModal visible={visible} onClose={onClose} title={category ? 'Editar categoría' : 'Nueva categoría'} onClosed={onClosed}>
             <View className="gap-4 pb-2">
                 <FormInput label="Nombre" placeholder="Ej. Repuestos" value={name} onChangeText={setName} errorMessage={errors.name} autoFocus={!category} />
-                <FormInput
-                    label={byMode ? 'Arancel general' : 'Arancel'}
-                    placeholder="0"
-                    value={rate}
-                    onChangeText={setRate}
-                    errorMessage={errors.tariffRate}
-                    hint={byMode ? 'Se usa para los transportes sin arancel propio.' : 'Porcentaje del valor en aduana que paga esta categoría.'}
-                    suffix="%"
-                    numeric
-                />
-                <View className="flex-row items-center justify-between rounded-2xl bg-fondo3 px-4 py-3">
-                    <View className="flex-1 flex-row items-center gap-1.5">
-                        <Text className="text-sm font-medium text-texto1">Arancel distinto por transporte</Text>
-                        <InfoTooltip term="transport" size={14} />
-                    </View>
-                    <Switch
-                        value={byMode}
-                        onValueChange={setByMode}
-                        trackColor={{ false: COLORS.borde, true: COLORS.primario }}
-                        thumbColor={COLORS.fondo2}
-                        accessibilityLabel="Arancel distinto por transporte"
-                    />
-                </View>
-                {byMode ? (
+
+                <View className="gap-2">
+                    <Text className="text-sm font-medium text-texto1">Arancel por transporte</Text>
                     <View className="flex-row gap-2">
                         {TRANSPORT_MODES.map((mode) => (
                             <View key={mode} className="flex-1">
@@ -114,14 +86,25 @@ export function CategorySheet({ visible, onClose, category, onSave, onDelete, on
                                     placeholder="—"
                                     suffix="%"
                                     numeric
-                                    value={modes[mode]}
-                                    onChangeText={(text) => setModes((current) => ({ ...current, [mode]: text }))}
+                                    value={rates[mode]}
+                                    onChangeText={(text) => {
+                                        setRates((current) => ({ ...current, [mode]: text }));
+                                        if (errors.rates) setErrors((current) => ({ ...current, rates: undefined }));
+                                    }}
                                     errorMessage={errors[mode]}
                                 />
                             </View>
                         ))}
                     </View>
-                ) : null}
+                    {errors.rates ? <Text className="text-xs text-rojo">{errors.rates}</Text> : null}
+                    <View className="flex-row items-start gap-2 rounded-xl border border-amarillo/40 bg-amarillo/15 px-3 py-2.5">
+                        <Icon name="circle-alert" size={16} color={BRAND.amarillo} />
+                        <Text className="flex-1 text-xs leading-4 text-texto1">
+                            Si dejas un transporte vacío, la categoría no se ofrecerá al cotizar con ese transporte. Escribe 0 si el arancel es cero.
+                        </Text>
+                    </View>
+                </View>
+
                 <ActionButton label={category ? 'Guardar cambios' : 'Agregar categoría'} icon="check" onPress={save} />
                 {category ? <ActionButton label="Eliminar categoría" icon="trash" variant="danger" onPress={remove} /> : null}
                 {deleteError ? <Text className="text-center text-xs text-rojo">{deleteError}</Text> : null}

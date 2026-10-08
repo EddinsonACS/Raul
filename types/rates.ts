@@ -1,15 +1,15 @@
 import type { TransportMode } from '@/types/operation';
 
+/** Arancel por transporte. Un modo ausente significa que la categoria no se puede usar con ese transporte. */
+export type TariffRates = Partial<Record<TransportMode, number>>;
+
 export type Category = {
     id: string;
     name: string;
-    /** Porcentaje de arancel, de 0 a 100. Se usa cuando no hay valor para el transporte. */
-    tariffRate: number;
-    /** Arancel por transporte; si falta un modo se usa `tariffRate`. Ausente = mismo arancel para todos. */
-    tariffByMode?: Partial<Record<TransportMode, number>>;
+    rates: TariffRates;
 };
 
-export type CategoryInput = Pick<Category, 'name' | 'tariffRate' | 'tariffByMode'>;
+export type CategoryInput = Pick<Category, 'name' | 'rates'>;
 
 export type TaxSettings = {
     /** Porcentaje de IVA, de 0 a 100. */

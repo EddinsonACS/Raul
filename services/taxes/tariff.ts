@@ -1,12 +1,17 @@
+import { TRANSPORT_MODES } from '@/constants/labels';
 import type { TransportMode } from '@/types/operation';
 import type { Category } from '@/types/rates';
 
-/** Arancel que aplica a una categoria segun el transporte; si no hay valor especifico, el general. */
-export function tariffRateFor(category: Pick<Category, 'tariffRate' | 'tariffByMode'>, transport: TransportMode): number {
-    return category.tariffByMode?.[transport] ?? category.tariffRate;
+/** Arancel de la categoria para un transporte, o undefined si no esta disponible para el. */
+export function tariffRateFor(category: Pick<Category, 'rates'>, transport: TransportMode): number | undefined {
+    return category.rates[transport];
 }
 
-/** true cuando la categoria define arancel distinto para algun transporte. */
-export function hasModeRates(category: Pick<Category, 'tariffByMode'>): boolean {
-    return Object.keys(category.tariffByMode ?? {}).length > 0;
+export function isAvailableFor(category: Pick<Category, 'rates'>, transport: TransportMode): boolean {
+    return category.rates[transport] !== undefined;
+}
+
+/** Transportes para los que la categoria tiene arancel, en el orden fijo de la app. */
+export function availableModes(category: Pick<Category, 'rates'>): TransportMode[] {
+    return TRANSPORT_MODES.filter((mode) => isAvailableFor(category, mode));
 }

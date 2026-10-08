@@ -24,7 +24,7 @@ describe('buildSeedOperations', () => {
         for (const operation of operations) {
             expect(ids.has(operation.categoryId)).toBe(true);
             const category = DEFAULT_CATEGORIES.find((c) => c.id === operation.categoryId)!;
-            expect(operation.breakdown).toEqual(calculateTaxes(operation, tariffRateFor(category, operation.transport), DEFAULT_SETTINGS));
+            expect(operation.breakdown).toEqual(calculateTaxes(operation, tariffRateFor(category, operation.transport)!, DEFAULT_SETTINGS));
             expect(operation.exchangeRate).toBe(DEFAULT_SETTINGS.exchangeRate);
         }
     });

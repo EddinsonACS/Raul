@@ -53,22 +53,22 @@ describe('validateSettings', () => {
 });
 
 describe('validateCategory', () => {
-    it('acepta nombre y tasa válidos, incluido 0 y 100', () => {
-        expect(validateCategory({ name: 'Libros', tariffRate: 0 })).toEqual({});
-        expect(validateCategory({ name: 'Lujo', tariffRate: 100, tariffByMode: { air: 30, sea: 20 } })).toEqual({});
+    it('acepta nombre y aranceles válidos, incluido 0 y 100, aunque falte algún transporte', () => {
+        expect(validateCategory({ name: 'Libros', rates: { sea: 0 } })).toEqual({});
+        expect(validateCategory({ name: 'Lujo', rates: { air: 100, sea: 20, land: 5 } })).toEqual({});
     });
 
-    it('exige nombre y tasa entre 0 y 100', () => {
-        const errors = validateCategory({ name: ' ', tariffRate: 150 });
+    it('exige nombre y al menos un transporte con arancel', () => {
+        const errors = validateCategory({ name: ' ', rates: {} });
         expect(errors.name).toBe('Escribe un nombre.');
-        expect(errors.tariffRate).toBe('Debe estar entre 0 y 100.');
-        expect(validateCategory({ name: 'X', tariffRate: NaN }).tariffRate).toBe('Debe estar entre 0 y 100.');
+        expect(errors.rates).toBe('Indica el arancel de al menos un transporte.');
     });
 
     it('revisa cada arancel por transporte', () => {
-        const errors = validateCategory({ name: 'Ropa', tariffRate: 20, tariffByMode: { air: NaN, land: 101, sea: 10 } });
+        const errors = validateCategory({ name: 'Ropa', rates: { air: NaN, land: 101, sea: 10 } });
         expect(errors.air).toBe('Debe estar entre 0 y 100.');
         expect(errors.land).toBe('Debe estar entre 0 y 100.');
         expect(errors.sea).toBeUndefined();
+        expect(errors.rates).toBeUndefined();
     });
 });

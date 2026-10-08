@@ -49,6 +49,6 @@ export const GLOSSARY: Record<GlossaryKey, { title: string; text: string }> = {
     },
     transport: {
         title: 'Transporte',
-        text: 'Cómo llega la mercancía: por mar, por aire o por tierra. Cambia el flete y, si la categoría lo define, el arancel. En la ley el arancel depende del producto, no del transporte.',
+        text: 'Cómo llega la mercancía: por mar, por aire o por tierra. Cada categoría define su arancel por transporte; si no lo tiene para uno, no se puede cotizar con ese transporte. En la ley el arancel depende del producto, no del transporte.',
     },
 };

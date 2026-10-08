@@ -26,7 +26,7 @@ npx tsc --noEmit  # tipos
 |---|---|
 | Inicio | Tasa del día, indicadores, accesos rápidos y últimas operaciones. Engranaje → Ajustes. |
 | Cotizar | Tipo, transporte (marítimo/aéreo/terrestre), categoría y montos con desglose en vivo y tooltips. "Registrar" abre una hoja que pide la descripción y lleva al pago. |
-| Categorías | Buscador y lista de aranceles. Tocar una abre la hoja para editar o eliminar; **+** para crear. |
+| Categorías | Buscador y lista con el arancel por transporte. Tocar una abre la hoja para editar o eliminar; **+** para crear. |
 | Historial | Buscador, filtros por estado, tipo y transporte, y detalle de cada operación. |
 
 ## Cómo se calcula
@@ -35,7 +35,7 @@ Importación (normativa venezolana):
 
 1. Valor en aduana (CIF) = producto + flete + seguro.
 2. Si el producto no supera el mínimo exento (100 USD, Res. 3.283/1997), no paga nada.
-3. Arancel = valor en aduana × tasa de la categoría (o la del transporte, si la categoría lo distingue).
+3. Arancel = valor en aduana × arancel de la categoría para el transporte elegido.
 4. Tasa por servicios de aduana = valor en aduana × 1 %.
 5. IVA = (valor en aduana + arancel + tasa) × 16 %.
 6. Total = arancel + tasa + IVA.

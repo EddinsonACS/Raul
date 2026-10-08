@@ -1,23 +1,21 @@
-import { hasModeRates, tariffRateFor } from '@/services/taxes/tariff';
+import { availableModes, isAvailableFor, tariffRateFor } from '@/services/taxes/tariff';
+
+const category = { rates: { sea: 20, air: 25 } };
 
 describe('tariffRateFor', () => {
-    it('usa el arancel general cuando la categoría no distingue transporte', () => {
-        expect(tariffRateFor({ tariffRate: 20 }, 'sea')).toBe(20);
-        expect(tariffRateFor({ tariffRate: 20, tariffByMode: {} }, 'air')).toBe(20);
-    });
-
-    it('usa el arancel del transporte cuando existe y el general si falta', () => {
-        const category = { tariffRate: 20, tariffByMode: { air: 25, land: 18 } };
-        expect(tariffRateFor(category, 'air')).toBe(25);
-        expect(tariffRateFor(category, 'land')).toBe(18);
+    it('devuelve el arancel del transporte o undefined si no existe', () => {
         expect(tariffRateFor(category, 'sea')).toBe(20);
+        expect(tariffRateFor(category, 'air')).toBe(25);
+        expect(tariffRateFor(category, 'land')).toBeUndefined();
+        expect(tariffRateFor({ rates: { land: 0 } }, 'land')).toBe(0);
     });
 });
 
-describe('hasModeRates', () => {
-    it('detecta si hay aranceles por transporte', () => {
-        expect(hasModeRates({})).toBe(false);
-        expect(hasModeRates({ tariffByMode: {} })).toBe(false);
-        expect(hasModeRates({ tariffByMode: { sea: 10 } })).toBe(true);
+describe('isAvailableFor y availableModes', () => {
+    it('indican con qué transportes se puede usar la categoría', () => {
+        expect(isAvailableFor(category, 'land')).toBe(false);
+        expect(isAvailableFor({ rates: { land: 0 } }, 'land')).toBe(true);
+        expect(availableModes(category)).toEqual(['sea', 'air']);
+        expect(availableModes({ rates: {} })).toEqual([]);
     });
 });
