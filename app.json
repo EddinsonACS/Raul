@@ -7,7 +7,8 @@
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.eddinsonc.aduanas"
     },
     "android": {
       "adaptiveIcon": {
@@ -15,7 +16,8 @@
         "monochromeImage": "./assets/android-icon-monochrome.png",
         "backgroundColor": "#071633"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.eddinsonc.aduanas"
     },
     "web": {
       "favicon": "./assets/favicon.png"
