@@ -4,6 +4,7 @@ import { Pressable, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Icon, type IconName } from '@/components/Shared/Ui/Icon';
+import { isNavbarHidden } from '@/constants/layout';
 import { goToTab } from '@/utils/navigation';
 import { COLORS } from '@/Shared/Global/colors';
 
@@ -57,6 +58,8 @@ export function Navbar() {
     const router = useRouter();
     const pathname = usePathname();
     const insets = useSafeAreaInsets();
+
+    if (isNavbarHidden(pathname)) return null;
 
     return (
         <View style={{ paddingBottom: Math.max(insets.bottom, 10) }} className="flex-row border-t border-borde bg-fondo2">

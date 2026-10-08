@@ -31,7 +31,6 @@ export default function Quote() {
     const [value, setValue] = useState('');
     const [freight, setFreight] = useState('');
     const [insurance, setInsurance] = useState('');
-    const [attempted, setAttempted] = useState(false);
     const [pickerOpen, setPickerOpen] = useState(false);
     const [registerOpen, setRegisterOpen] = useState(false);
     const registeredId = useRef<string | null>(null);
@@ -42,10 +41,14 @@ export default function Quote() {
     const errors = validateOperation({ description: 'x', categoryId: category?.id ?? null, ...amounts });
     const amountsValid = !errors.value && !errors.freight && !errors.insurance;
     const breakdown = amountsValid && category ? calculateTaxes({ type, ...amounts }, category.tariffRate, settings) : null;
-    const shown = attempted ? errors : {};
+    // Los errores se muestran solo en campos con texto; el boton queda opaco hasta que la cotizacion sea valida.
+    const shown = {
+        value: value.trim() === '' ? undefined : errors.value,
+        freight: freight.trim() === '' ? undefined : errors.freight,
+        insurance: insurance.trim() === '' ? undefined : errors.insurance,
+    };
 
     const startRegister = () => {
-        setAttempted(true);
         if (!breakdown) return;
         setRegisterOpen(true);
     };
@@ -65,7 +68,6 @@ export default function Quote() {
         setValue('');
         setFreight('');
         setInsurance('');
-        setAttempted(false);
         toast.success('Operación registrada');
         router.push({ pathname: '/Payment', params: { id } });
     };
@@ -73,7 +75,7 @@ export default function Quote() {
     return (
         <Screen
             title="Cotizar"
-            footer={<ActionButton label="Registrar operación" icon="check" onPress={startRegister} disabled={attempted && !breakdown} />}
+            footer={<ActionButton label="Registrar operación" icon="check" onPress={startRegister} disabled={!breakdown} />}
         >
             <TypeSwitch value={type} onChange={setType} />
 
@@ -88,14 +90,13 @@ export default function Quote() {
                         onPress={() => setPickerOpen(true)}
                         accessibilityRole="button"
                         accessibilityLabel="Elegir categoría"
-                        className={`h-12 flex-row items-center justify-between rounded-2xl border bg-fondo2 px-4 ${shown.categoryId ? 'border-rojo' : 'border-borde'}`}
+                        className="h-12 flex-row items-center justify-between rounded-2xl border border-borde bg-fondo2 px-4"
                     >
                         <Text className={`text-base ${category ? 'text-texto1' : 'text-texto2'}`}>
                             {category ? `${category.name} · ${category.tariffRate} %` : 'Elegir categoría'}
                         </Text>
                         <Icon name="chevron-right" size={18} color={COLORS.texto2} />
                     </Pressable>
-                    {shown.categoryId ? <Text className="text-xs text-rojo">{shown.categoryId}</Text> : null}
                 </View>
                 <FormInput label="Valor del producto" placeholder="0.00" suffix="USD" numeric value={value} onChangeText={setValue} errorMessage={shown.value} />
                 <View className="flex-row gap-3">

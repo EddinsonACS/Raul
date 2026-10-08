@@ -1,6 +1,9 @@
 import type { ReactNode } from 'react';
+import { usePathname } from 'expo-router';
 import { KeyboardAvoidingView, ScrollView, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { TopHeader } from '@/components/Layout/TopHeader';
+import { isNavbarHidden } from '@/constants/layout';
 import { useScrolled } from '@/hooks/shared/useScrolled';
 
 type ScreenProps = {
@@ -15,6 +18,9 @@ type ScreenProps = {
 
 export function Screen({ title, children, showLogo, onBack, actions, footer }: ScreenProps) {
     const { scrolled, onScroll } = useScrolled();
+    const insets = useSafeAreaInsets();
+    const pathname = usePathname();
+    const footerBottom = isNavbarHidden(pathname) ? Math.max(insets.bottom, 12) : 12;
 
     return (
         <KeyboardAvoidingView className="flex-1 bg-fondo" behavior="padding">
@@ -27,7 +33,11 @@ export function Screen({ title, children, showLogo, onBack, actions, footer }: S
             >
                 {children}
             </ScrollView>
-            {footer ? <View className="border-t border-borde bg-fondo px-5 py-3">{footer}</View> : null}
+            {footer ? (
+                <View style={{ paddingBottom: footerBottom }} className="border-t border-borde bg-fondo px-5 pt-3">
+                    {footer}
+                </View>
+            ) : null}
         </KeyboardAvoidingView>
     );
 }

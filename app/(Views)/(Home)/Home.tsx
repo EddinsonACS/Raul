@@ -1,28 +1,35 @@
 import { useRouter } from 'expo-router';
+import { useMemo } from 'react';
 import { Text, View } from 'react-native';
 import Animated, { FadeInDown } from 'react-native-reanimated';
-import { QuickActions } from '@/components/(Views)/Home/QuickActions';
+import { CollectedChart } from '@/components/(Views)/Home/CollectedChart';
+import { PendingRing } from '@/components/(Views)/Home/PendingRing';
 import { RateCard } from '@/components/(Views)/Home/RateCard';
+import { ReceivableChart } from '@/components/(Views)/Home/ReceivableChart';
+import { TypeSplitBar } from '@/components/(Views)/Home/TypeSplitBar';
 import { OperationRow } from '@/components/(Views)/History/OperationRow';
 import { Screen } from '@/components/Layout/Screen';
-import { ActionButton } from '@/components/Shared/Buttons/ActionButton';
 import { IconButton } from '@/components/Shared/Buttons/IconButton';
 import { EmptyState } from '@/components/Shared/Feedback/EmptyState';
-import { KpiCard } from '@/components/Shared/Ui/KpiCard';
+import { collectedByDay, pendingBars } from '@/services/operations/charts';
 import { summarizeOperations } from '@/services/operations/summary';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
-import { formatBs, formatUsd } from '@/utils/format';
 import { goToTab } from '@/utils/navigation';
 
 const RECENT_COUNT = 3;
+const PENDING_BARS = 4;
+const CHART_DAYS = 7;
 
 export default function Home() {
     const router = useRouter();
     const operations = useOperationsStore((state) => state.operations);
     const categories = useRatesStore((state) => state.categories);
     const exchangeRate = useRatesStore((state) => state.settings.exchangeRate);
+
     const summary = summarizeOperations(operations);
+    const days = useMemo(() => collectedByDay(operations, CHART_DAYS, new Date()), [operations]);
+    const bars = useMemo(() => pendingBars(operations, PENDING_BARS), [operations]);
     const recent = operations.slice(0, RECENT_COUNT);
 
     const categoryName = (id: string) => categories.find((item) => item.id === id)?.name ?? 'Sin categoría';
@@ -33,26 +40,15 @@ export default function Home() {
             <RateCard exchangeRate={exchangeRate} onPress={openSettings} />
 
             <Animated.View entering={FadeInDown.duration(320)} className="flex-row gap-3">
-                <KpiCard label="Recaudado" value={formatUsd(summary.collected.usd)} detail={formatBs(summary.collected.bs)} icon="wallet" tone="success" />
-                <KpiCard label="Por cobrar" value={formatUsd(summary.receivable.usd)} detail={formatBs(summary.receivable.bs)} icon="banknote" tone="warning" />
+                <PendingRing pending={summary.pendingCount} total={summary.totalCount} />
+                <TypeSplitBar importCount={summary.importCount} exportCount={summary.exportCount} />
             </Animated.View>
-            <Animated.View entering={FadeInDown.duration(320).delay(80)} className="flex-row gap-3">
-                <KpiCard label="Pendientes" value={String(summary.pendingCount)} detail="operaciones sin pagar" icon="receipt" />
-                <KpiCard
-                    label="Operaciones"
-                    value={String(summary.totalCount)}
-                    detail={`${summary.importCount} import. · ${summary.exportCount} export.`}
-                    icon="trending-up"
-                />
+            <Animated.View entering={FadeInDown.duration(320).delay(80)}>
+                <CollectedChart collected={summary.collected} days={days} />
             </Animated.View>
-
-            <QuickActions
-                actions={[
-                    { label: 'Cotizar', icon: 'calculator', onPress: () => goToTab(router, '/Quote') },
-                    { label: 'Categorías', icon: 'tags', onPress: () => goToTab(router, '/Categories') },
-                    { label: 'Historial', icon: 'history', onPress: () => goToTab(router, '/History') },
-                ]}
-            />
+            <Animated.View entering={FadeInDown.duration(320).delay(160)}>
+                <ReceivableChart receivable={summary.receivable} bars={bars} pendingCount={summary.pendingCount} />
+            </Animated.View>
 
             <View className="flex-row items-end justify-between pt-2">
                 <Text className="text-xs font-semibold uppercase tracking-wider text-texto2">Últimas operaciones</Text>
@@ -70,18 +66,15 @@ export default function Home() {
                     action={{ label: 'Nueva cotización', icon: 'calculator', onPress: () => goToTab(router, '/Quote') }}
                 />
             ) : (
-                <>
-                    {recent.map((operation, index) => (
-                        <Animated.View key={operation.id} entering={FadeInDown.duration(320).delay(160 + index * 60)}>
-                            <OperationRow
-                                operation={operation}
-                                categoryName={categoryName(operation.categoryId)}
-                                onPress={() => router.push({ pathname: '/OperationDetail', params: { id: operation.id } })}
-                            />
-                        </Animated.View>
-                    ))}
-                    <ActionButton label="Nueva cotización" icon="calculator" onPress={() => goToTab(router, '/Quote')} />
-                </>
+                recent.map((operation, index) => (
+                    <Animated.View key={operation.id} entering={FadeInDown.duration(320).delay(240 + index * 60)}>
+                        <OperationRow
+                            operation={operation}
+                            categoryName={categoryName(operation.categoryId)}
+                            onPress={() => router.push({ pathname: '/OperationDetail', params: { id: operation.id } })}
+                        />
+                    </Animated.View>
+                ))
             )}
         </Screen>
     );
