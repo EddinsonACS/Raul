@@ -4,7 +4,7 @@ import { View } from 'react-native';
 import { OperationRow } from '@/components/(Views)/History/OperationRow';
 import { Screen } from '@/components/Layout/Screen';
 import { EmptyState } from '@/components/Shared/Feedback/EmptyState';
-import { OptionSheet, type SheetOption } from '@/components/Shared/Forms/OptionSheet';
+import { DropdownPanel, type DropdownOption } from '@/components/Shared/Forms/DropdownPanel';
 import { SearchBar } from '@/components/Shared/Forms/SearchBar';
 import { SelectField } from '@/components/Shared/Forms/SelectField';
 import { STATUS_LABELS, TRANSPORT_LABELS, TRANSPORT_MODES, TYPE_LABELS } from '@/constants/labels';
@@ -15,7 +15,7 @@ import { goToTab } from '@/utils/navigation';
 
 type FilterKey = 'status' | 'type' | 'transport';
 
-const FILTER_OPTIONS: Record<FilterKey, { label: string; options: SheetOption[] }> = {
+const FILTER_OPTIONS: Record<FilterKey, { label: string; options: DropdownOption[] }> = {
     status: {
         label: 'Estado',
         options: [
@@ -55,16 +55,29 @@ export default function History() {
     return (
         <Screen title="Historial">
             <SearchBar value={filters.query} onChangeText={(query) => setFilters((current) => ({ ...current, query }))} placeholder="Buscar por descripción o comprobante" />
-            <View className="flex-row gap-2">
-                {FILTER_KEYS.map((key) => (
-                    <SelectField
-                        key={key}
-                        label={FILTER_OPTIONS[key].label}
-                        value={labelFor(key)}
-                        active={filters[key] !== 'all'}
-                        onPress={() => setOpenFilter(key)}
+            <View className="gap-2">
+                <View className="flex-row gap-2">
+                    {FILTER_KEYS.map((key) => (
+                        <SelectField
+                            key={key}
+                            label={FILTER_OPTIONS[key].label}
+                            value={labelFor(key)}
+                            active={filters[key] !== 'all'}
+                            open={openFilter === key}
+                            onPress={() => setOpenFilter((current) => (current === key ? null : key))}
+                        />
+                    ))}
+                </View>
+                {openFilter ? (
+                    <DropdownPanel
+                        options={FILTER_OPTIONS[openFilter].options}
+                        selectedKey={filters[openFilter]}
+                        onSelect={(key) => {
+                            setFilters((current) => ({ ...current, [openFilter]: key }));
+                            setOpenFilter(null);
+                        }}
                     />
-                ))}
+                ) : null}
             </View>
             {operations.length === 0 ? (
                 <EmptyState
@@ -85,16 +98,6 @@ export default function History() {
                     />
                 ))
             )}
-            {openFilter ? (
-                <OptionSheet
-                    visible
-                    onClose={() => setOpenFilter(null)}
-                    title={FILTER_OPTIONS[openFilter].label}
-                    options={FILTER_OPTIONS[openFilter].options}
-                    selectedKey={filters[openFilter]}
-                    onSelect={(key) => setFilters((current) => ({ ...current, [openFilter]: key }))}
-                />
-            ) : null}
         </Screen>
     );
 }
