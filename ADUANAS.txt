@@ -1,11 +1,14 @@
 ADUANAS
 =======
 
-Aplicación móvil (Android / iOS) de gestión tributaria para importaciones y
-exportaciones menores: compras por internet y envíos courier. Calcula al
-instante los impuestos de cada operación según la normativa venezolana,
-simula el cobro, emite el comprobante y lleva el historial. Todo funciona
-en el teléfono, sin servidor; los datos se guardan localmente.
+Aplicación móvil que calcula los impuestos de importaciones y
+exportaciones menores (envíos courier, paquetes y cargas pequeñas) con la
+fórmula de la normativa venezolana, registra cada operación, simula su
+pago, genera un comprobante y lleva el historial.
+
+Qué no hace: no compra nada, no se conecta a la aduana ni a bancos y no
+mueve dinero real. Es una herramienta de cálculo y registro. Todo
+funciona en el teléfono, sin servidor; los datos se guardan localmente.
 
 Tecnología: React Native + Expo, TypeScript, Expo Router, NativeWind,
 Zustand (persistencia en el dispositivo), Reanimated. 81 pruebas
@@ -17,8 +20,9 @@ PANTALLAS
 
 1. INICIO (tablero)
 
-   - Tasa del día: bolívares por 1 USD. Se usa para mostrar cada monto en
-     las dos monedas. Tocarla abre Ajustes.
+   - Tasa del día: bolívares por 1 USD, escrita a mano en Ajustes (la app
+     no la consulta en internet). Se usa para mostrar cada monto en las
+     dos monedas. Tocarla abre Ajustes.
    - Pendientes (anillo): cuántas operaciones faltan por pagar y qué
      porcentaje del total representan.
    - Operaciones (barra por transporte): cuántas operaciones hay y cómo se
@@ -62,14 +66,16 @@ PANTALLAS
 
    Estados de una operación:
    - Pendiente: registrada, sin pagar. Se puede pagar o eliminar.
-   - Pagada: tiene número de comprobante (ADU-000001, consecutivo).
-   - Liberada: la mercancía fue entregada. Es el estado final.
+   - Pagada: pago simulado hecho; tiene número de comprobante
+     (ADU-000001, consecutivo).
+   - Liberada: el usuario marca que la mercancía ya se entregó. Es el
+     estado final.
 
 5. PAGO Y COMPROBANTE
 
    El pago es simulado (no mueve dinero real): confirmar -> procesando ->
-   pago realizado. Al terminar se muestra el comprobante con número,
-   fecha, datos de la operación y el desglose.
+   pago realizado. Al terminar se muestra el comprobante, también
+   simulado, con número, fecha, datos de la operación y el desglose.
 
 6. AJUSTES (desde el engranaje de Inicio)
 
