@@ -1,7 +1,7 @@
 import { useRouter } from 'expo-router';
 import { Text } from 'react-native';
 import { Button } from '@/components/Shared/Button';
-import { Screen } from '@/components/Shared/Screen';
+import { Screen } from '@/components/Layout/Screen';
 import { goToTab } from '@/utils/navigation';
 
 export function OperationMissing() {

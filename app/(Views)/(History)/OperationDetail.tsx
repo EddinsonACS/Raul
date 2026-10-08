@@ -5,7 +5,7 @@ import { OperationMissing } from '@/components/(Views)/Operation/OperationMissin
 import { Button } from '@/components/Shared/Button';
 import { Card } from '@/components/Shared/Ui/Card';
 import { MoneyRow } from '@/components/Shared/Ui/MoneyRow';
-import { Screen } from '@/components/Shared/Screen';
+import { Screen } from '@/components/Layout/Screen';
 import { StatusBadge } from '@/components/Shared/Ui/StatusBadge';
 import { TYPE_LABELS } from '@/constants/labels';
 import { toMoney } from '@/services/taxes/calculateTaxes';

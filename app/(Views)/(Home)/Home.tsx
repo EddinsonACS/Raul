@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 import { OperationRow } from '@/components/(Views)/History/OperationRow';
 import { KpiCard } from '@/components/Shared/Ui/KpiCard';
 import { Button } from '@/components/Shared/Button';
-import { Screen } from '@/components/Shared/Screen';
+import { Screen } from '@/components/Layout/Screen';
 import { summarizeOperations } from '@/services/operations/summary';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
@@ -23,7 +23,7 @@ export default function Home() {
     const categoryName = (id: string) => categories.find((item) => item.id === id)?.name ?? 'Sin categoría';
 
     return (
-        <Screen title="Aduanas" icon="cube">
+        <Screen title="Aduanas" showLogo>
             <View className="gap-1 rounded-2xl bg-primario p-4">
                 <Text className="text-xs font-semibold uppercase text-white">Tasa del día</Text>
                 <Text className="text-3xl font-bold text-white">{formatBs(exchangeRate)}</Text>

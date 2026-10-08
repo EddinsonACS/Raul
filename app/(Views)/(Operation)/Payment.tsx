@@ -4,7 +4,7 @@ import { BreakdownCard } from '@/components/(Views)/Operation/BreakdownCard';
 import { OperationMissing } from '@/components/(Views)/Operation/OperationMissing';
 import { Button } from '@/components/Shared/Button';
 import { Card } from '@/components/Shared/Ui/Card';
-import { Screen } from '@/components/Shared/Screen';
+import { Screen } from '@/components/Layout/Screen';
 import { TYPE_LABELS } from '@/constants/labels';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { formatBs, formatUsd } from '@/utils/format';

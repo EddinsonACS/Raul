@@ -5,7 +5,7 @@ import { BreakdownCard } from '@/components/(Views)/Operation/BreakdownCard';
 import { Button } from '@/components/Shared/Button';
 import { Card } from '@/components/Shared/Ui/Card';
 import { Field } from '@/components/Shared/Field';
-import { Screen } from '@/components/Shared/Screen';
+import { Screen } from '@/components/Layout/Screen';
 import { TYPE_LABELS } from '@/constants/labels';
 import { calculateTaxes } from '@/services/taxes/calculateTaxes';
 import { useOperationsStore } from '@/stores/operations/operationsStore';

@@ -2,7 +2,7 @@ import { useRouter } from 'expo-router';
 import { Text } from 'react-native';
 import { OperationRow } from '@/components/(Views)/History/OperationRow';
 import { Button } from '@/components/Shared/Button';
-import { Screen } from '@/components/Shared/Screen';
+import { Screen } from '@/components/Layout/Screen';
 import { useOperationsStore } from '@/stores/operations/operationsStore';
 import { useRatesStore } from '@/stores/rates/ratesStore';
 import { goToTab } from '@/utils/navigation';
