@@ -46,10 +46,11 @@ function Step({ number, text }: { number: number; text: string }) {
     );
 }
 
-function LegalItem({ title, text }: { title: string; text: string }) {
+function LegalItem({ title, date, text }: { title: string; date: string; text: string }) {
     return (
         <View className="gap-0.5 border-l-2 border-primario/40 pl-3">
             <Text className="text-sm font-semibold text-texto1">{title}</Text>
+            <Text className="text-[11px] font-medium text-primario">{date}</Text>
             <Text className="text-justify text-xs leading-4 text-texto2">{text}</Text>
         </View>
     );
@@ -179,23 +180,28 @@ export default function Settings() {
             <Card variant="flat">
                 <SectionTitle>Base legal (Venezuela)</SectionTitle>
                 <LegalItem
-                    title="Ley Orgánica de Aduanas (G.O. 6.507, 2020)"
+                    title="Ley Orgánica de Aduanas"
+                    date="G.O. Extraordinaria 6.507 · 29 de enero de 2020"
                     text="Define el valor en aduana (CIF) como base de los tributos y la tasa por servicios de aduana del 1 %."
                 />
                 <LegalItem
-                    title="Arancel de Aduanas (Decreto 4.944 y reformas)"
+                    title="Arancel de Aduanas (Decreto 4.944)"
+                    date="G.O. Extraordinaria 6.804 · 25 de abril de 2024 · reformado por el Decreto 5.103 (G.O. 6.890, 6 de marzo de 2025)"
                     text="Arancel ad valorem de 0 % a 35 % según el código arancelario de cada producto. Las categorías de la app lo simplifican."
                 />
                 <LegalItem
-                    title="Ley del IVA"
+                    title="Ley del Impuesto al Valor Agregado"
+                    date="G.O. Extraordinaria 6.507 · 29 de enero de 2020"
                     text="Alícuota general de 16 % sobre el valor en aduana más los tributos de la importación. Las exportaciones tienen alícuota 0 %."
                 />
                 <LegalItem
-                    title="Resolución 3.283 (G.O. 36.127, 1997)"
+                    title="Resolución 3.283 (envíos courier)"
+                    date="G.O. 36.127 · 16 de enero de 1997"
                     text="Envíos courier de hasta 100 USD libres de gravámenes y tributos; hasta 2.000 USD por envío se nacionalizan por el courier."
                 />
                 <LegalItem
-                    title="Decreto 5.197 (G.O. 6.952, 2025)"
+                    title="Decreto 5.197 (exoneraciones 2026)"
+                    date="G.O. Extraordinaria 6.952 · 31 de diciembre de 2025"
                     text="Exoneraciones del 90 % de arancel e IVA para códigos arancelarios específicos durante 2026. No se aplican en esta app."
                 />
             </Card>
